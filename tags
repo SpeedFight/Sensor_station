@@ -1,0 +1,44 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AVRDUDE	build/makefile	/^AVRDUDE = avrdude$/;"	m
+AVRSIZE	build/makefile	/^AVRSIZE = avr-size$/;"	m
+BAUD	build/makefile	/^BAUD  = #19200L$/;"	m
+CC	build/makefile	/^CC = avr-gcc$/;"	m
+CFLAGS	build/makefile	/^CFLAGS = -Os -g -std=gnu99 -Wall$/;"	m
+CPPFLAGS	build/makefile	/^CPPFLAGS = -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -I. -I$(LIBDIR)$/;"	m
+EFUSE	build/makefile	/^EFUSE = 0x00$/;"	m
+FUSE_STRING	build/makefile	/^FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m$/;"	m
+FUSE_STRING	build/makefile	/^clear_eeprom_save_fuse: FUSE_STRING = -U hfuse:w:$(HFUSE):m$/;"	m
+FUSE_STRING	build/makefile	/^set_default_fuses:  FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m$/;"	m
+FUSE_STRING	build/makefile	/^set_eeprom_save_fuse: FUSE_STRING = -U hfuse:w:$(HFUSE):m$/;"	m
+FUSE_STRING	build/makefile	/^set_fast_fuse: FUSE_STRING = -U lfuse:w:$(LFUSE):m$/;"	m
+F_CPU	build/makefile	/^F_CPU = 1000000UL$/;"	m
+HEADERS	build/makefile	/^HEADERS=$(SOURCES:.c=.h)$/;"	m
+HFUSE	build/makefile	/^HFUSE = 0xdf$/;"	m
+HFUSE	build/makefile	/^set_eeprom_save_fuse: HFUSE = 0xD7$/;"	m
+LDFLAGS	build/makefile	/^LDFLAGS = -Wl,-Map,$(TARGET).map$/;"	m
+LFUSE	build/makefile	/^LFUSE = 0x62$/;"	m
+LFUSE	build/makefile	/^set_fast_fuse: LFUSE = 0xE2$/;"	m
+LIBDIR	build/makefile	/^LIBDIR = \/usr\/lib\/avr\/include$/;"	m
+MCU	build/makefile	/^MCU   = atmega8$/;"	m
+OBJCOPY	build/makefile	/^OBJCOPY = avr-objcopy$/;"	m
+OBJDUMP	build/makefile	/^OBJDUMP = avr-objdump$/;"	m
+OBJECTS	build/makefile	/^OBJECTS=$(SOURCES:.c=.o)$/;"	m
+PROGRAMMER_ARGS	build/makefile	/^PROGRAMMER_ARGS =$/;"	m
+PROGRAMMER_ARGS	build/makefile	/^flash_109: PROGRAMMER_ARGS = -b 9600 -P \/dev\/ttyUSB0$/;"	m
+PROGRAMMER_ARGS	build/makefile	/^flash_arduinoISP: PROGRAMMER_ARGS = -b 19200 -P \/dev\/ttyACM0$/;"	m
+PROGRAMMER_ARGS	build/makefile	/^flash_usbasp: PROGRAMMER_ARGS =  # USBasp works with no further arguments$/;"	m
+PROGRAMMER_ARGS	build/makefile	/^flash_usbtiny: PROGRAMMER_ARGS =  # USBTiny works with no further arguments$/;"	m
+PROGRAMMER_TYPE	build/makefile	/^PROGRAMMER_TYPE = usbasp$/;"	m
+PROGRAMMER_TYPE	build/makefile	/^flash_109: PROGRAMMER_TYPE = avr109$/;"	m
+PROGRAMMER_TYPE	build/makefile	/^flash_arduinoISP: PROGRAMMER_TYPE = avrisp$/;"	m
+PROGRAMMER_TYPE	build/makefile	/^flash_usbasp: PROGRAMMER_TYPE = usbasp$/;"	m
+PROGRAMMER_TYPE	build/makefile	/^flash_usbtiny: PROGRAMMER_TYPE = usbtiny$/;"	m
+SOURCES	build/makefile	/^SOURCES=$(wildcard $(LIBDIR)\/*.c ..\/app\/src\/*.c ..\/app\/inc\/*.h)$/;"	m
+TARGET	build/makefile	/^TARGET = $(lastword $(subst \/, ,$(CURDIR)))$/;"	m
+TARGET_ARCH	build/makefile	/^TARGET_ARCH = -mmcu=$(MCU)$/;"	m
+main	app/src/main.c	/^int main(void)$/;"	f
