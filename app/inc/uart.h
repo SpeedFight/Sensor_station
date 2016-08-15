@@ -1,8 +1,12 @@
 #ifndef _uart_h
 #define _uart_h
 
-#define uart_baud_rate 300
-void send(char *message);
-void init(void);
+#include "struct_def.h"
+
+
+void uart_init(comm_typedef *uart);
+comm_typedef uart;
+
+
 
 #endif
