@@ -14,9 +14,10 @@ int main(void)
 	DDRB |= (1<<PINB0);
 	while(1)
 	{
-		PORTB ^=(1<<PINB0);
-		_delay_ms(500);
-		uart.send(message);
+		//PORTB ^=(1<<PINB0);
+		_delay_ms(5000);
+		//uart.send(message);
+		uart.send(uart.received);
 
 	}
 }

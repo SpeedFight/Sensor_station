@@ -5,6 +5,7 @@ typedef struct
 {
 	void (*init)();
 	void (*send)(char *message);
+	char *received;
 }comm_typedef;
 
 

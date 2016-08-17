@@ -14,11 +14,13 @@
  * @addtogroup uart_definitions
  * @{
  */
-#define BAUD_UART  300
+#define BAUD_UART 19200u	
 #define UBRR_value (F_CPU/16/BAUD_UART-1)
 ///@}
 
-
+char uart_receive_data[512];
+uint8_t uart_received_data_packet;
+uint8_t uart_flag;
 
 /**
  * @brief Inicjalizacja modułu uart
@@ -39,6 +41,7 @@ void init(void)
  */
 void send(char *message)
 {
+	uart_flag=1;
 	do
 	{
 
@@ -54,6 +57,19 @@ void send(char *message)
 
 ISR(USART_RXC_vect)
 {
+	static uint16_t element;
+	PORTB ^=(1<<PINB0);
+
+	if(uart_flag)
+	{
+		uart_flag=0;
+		element=0;
+	}
+
+	uart_receive_data[element++]=UDR;
+	uart_receive_data[element]='\0';
+	//send(uart_receive_data);
+
 
 }
 
@@ -64,4 +80,5 @@ void uart_init(comm_typedef *uart)
 {
 	uart->init=&init;
 	uart->send=&send;
+	uart->received=uart_receive_data;
 }
