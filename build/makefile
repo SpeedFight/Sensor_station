@@ -5,7 +5,7 @@
 ##########------------------------------------------------------##########
 
 MCU   = atmega8
-F_CPU = 1000000UL
+F_CPU = 8000000UL
 BAUD  = #19200L
 ## Also try BAUD = 19200 or 38400 if you're feeling lucky.
 
@@ -165,11 +165,20 @@ flash_109: flash
 ##########------------------------------------------------------##########
 
 ## Mega 48, 88, 168, 328 default values
-LFUSE = 0x62
-HFUSE = 0xdf
+#LFUSE = 0x62
+#HFUSE = 0xdf
 EFUSE = 0x00
 
+## ATMEGA8A ##
+##fuse setup for intertal 8Mhz RC
+LFUSE = 0xE4
+HFUSE = 0xD9
+
+##fuse setup std
+#L 0xE2
+#H 0xD7
 ## Generic
+
 FUSE_STRING = -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m -U efuse:w:$(EFUSE):m
 
 fuses:
@@ -196,3 +205,6 @@ set_eeprom_save_fuse: fuses
 ## Clear the EESAVE fuse byte
 clear_eeprom_save_fuse: FUSE_STRING = -U hfuse:w:$(HFUSE):m
 clear_eeprom_save_fuse: fuses
+
+
+

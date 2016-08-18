@@ -8,16 +8,19 @@
 
 int main(void)
 {
-	uart_init(&uart);
+	comm_typedef uart;
+	uart_init_struct(&uart);
 	uart.init();
-	char *message="aiadomosc";
-	DDRB |= (1<<PINB0);
+
 	while(1)
 	{
-		//PORTB ^=(1<<PINB0);
-		_delay_ms(5000);
-		//uart.send(message);
-		uart.send(uart.received);
+		PORTB ^=(1<<PINB0);
+		_delay_ms(2000);
 
+		//if((*uart.received_data_pack))
+		{
+		uart.send(uart.received);
+		//uart.received_data_pack=0;
+		}
 	}
 }
