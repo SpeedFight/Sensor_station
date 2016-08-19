@@ -14,7 +14,7 @@
  * @addtogroup uart_definitions
  * @{
  */
-#define BAUD_UART 300	
+#define BAUD_UART 19200u
 #define UBRR_value (F_CPU/16/BAUD_UART-1)
 
 #define TIMER_COMPARE_VALUE	(255-252) //(1024/1e6)*10 = 0.05s
@@ -23,9 +23,9 @@
 
 char uart_receive_data[256];
 uint8_t uart_received_data_packet;
-uint8_t uart_flag;
-uint16_t element;
-uint8_t uart_data_pack_received;
+volatile uint8_t uart_flag;
+volatile uint16_t element;
+volatile uint8_t uart_data_pack_received;
 
 /**
  * @brief Inicjalizacja modułu uart
@@ -55,43 +55,48 @@ void init(void)
 void send(char *message)
 {
 	//if(!(uart_data_pack_received))
-	{
-			PORTB &= ~(1<<PINB0);	
-			uart_flag=1;
+
+		PORTB &= ~(1<<PINB0);
+		uart_flag=1;
 		do
 		{
 
 			while (!( UCSRA & (1<<UDRE)));	//czekaj aż poprzednie sie wyśle
 								//również tylko wtedy mozna pisać do tego
 								// bufora
-		
+
 			UDR = *message;				//wpakowanie danych do bufora
-		
-		}while(*(++message));			//jeśli napotkasz koniec cstring to skoncz wysyłanie
+
+		}while(*(++message));			//jeśli napotkasz koniec 	cstring to skoncz wysyłanie
 							//(symbol '/0')
-		
+
 		PORTB |= (1<<PINB0);
-	}
+
 }
 
 /**
  * @brief Receive uart data byte interrupt routine
- * @detals 
+ * @detals
  */
 ISR(USART_RXC_vect)
 {
+	if(uart_flag)
+	{
+		//element=0;
+		uart_flag=0;
+	}
 	PORTD &=~(1<<PIND7);
 	uart_data_pack_received=0;
 
 
 	uart_receive_data[element++]=UDR;
-
+	uart_receive_data[element]='\0';
 	PORTD |=(1<<PIND7);
 
-	TIFR |=(0<<TOV0);	//clear overflow flag
+	//TIFR |=(0<<TOV0);	//clear overflow flag
 	TIMSK |=(1<<TOIE0); //enable timer0 overflow IRQ
-	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
-	
+ 	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
+
 
 }
 

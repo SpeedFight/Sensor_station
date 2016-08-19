@@ -1,10 +1,6 @@
-
 #include <avr/io.h>
 #include <util/delay.h>
 #include "../inc/uart.h"
-
-
-
 
 int main(void)
 {
@@ -14,13 +10,13 @@ int main(void)
 
 	while(1)
 	{
-		PORTB ^=(1<<PINB0);
-		_delay_ms(2000);
+		//PORTB ^=(1<<PINB0);
+		_delay_ms(1000);
 
-		//if((*uart.received_data_pack))
-		{
+		//if((uart.received_data_pack))
+
 		uart.send(uart.received);
-		//uart.received_data_pack=0;
-		}
+		uart.received_data_pack=0;
+
 	}
 }
