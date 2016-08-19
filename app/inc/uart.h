@@ -1,3 +1,8 @@
+/**
+ * @file	uart.h
+ * @Author	SpeedFight (speedfight_2@wp.pl)
+ * @date	13.08.16
+ */
 #ifndef _uart_h
 #define _uart_h
 
@@ -41,12 +46,10 @@ void uart_init_struct(comm_typedef *uart);
 
 /**
  * @example
+ * @code
+ *  comm_typedef uart;
+ *  uart_init_struct(&uart);
+ *  uart.init();
+ *  uart.send("hello");
  */
-/*
- comm_typedef uart;
- uart_init_struct(&uart);
- uart.init();
-
- uart.send("hello");
-*/
 #endif

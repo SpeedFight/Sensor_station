@@ -12,9 +12,9 @@ int main(void)
 	{
 		//_delay_ms(1000);
 
-		if(*uart.received_data_pack)
+		if(*uart.received_data_pack_flag)
 		{
-			*uart.received_data_pack=0;
+			*uart.received_data_pack_flag=0;
 
 			uart.send(uart.received);
 
