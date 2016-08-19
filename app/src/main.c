@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "../inc/uart.h"
+#include "../inc/esp.h"
 
 int main(void)
 {

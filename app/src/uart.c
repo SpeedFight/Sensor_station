@@ -70,7 +70,7 @@ volatile uint8_t uart_data_pack_received;
 /**
  * @brief Inicjalizacja modułu uart
  */
-void init(void)
+void init_uart(void)
 {
 	LED_DDR(TX_PORT) |=(1<<LED_PIN(TX_PIN));	//set led pins as output
 	LED_DDR(RX_PORT) |=(1<<LED_PIN(RX_PIN));
@@ -147,7 +147,7 @@ ISR(TIMER0_OVF_vect)
  */
 void uart_init_struct(comm_typedef *uart)
 {
-	uart->init=&init;
+	uart->init=&init_uart;
 	uart->send=&send;
 	uart->received=uart_receive_data;
 	uart->received_data_pack_flag=&uart_data_pack_received;
