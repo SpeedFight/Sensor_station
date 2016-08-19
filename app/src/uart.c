@@ -17,13 +17,15 @@
 #define BAUD_UART 19200u
 #define UBRR_value (F_CPU/16/BAUD_UART-1)
 
-#define TIMER_COMPARE_VALUE	(255-252) //(1024/1e6)*10 = 0.05s
+#define TIMER_COMPARE_VALUE	(255-200) //(1024/1e6)*10 = 0.05s
 					 //(clk_div/F_CPU)*mulipy_by
+
+#define BUFFER_SIZE 1024u
 ///@}
 
-char uart_receive_data[256];
-uint8_t uart_received_data_packet;
-volatile uint8_t uart_flag;
+char uart_receive_data[BUFFER_SIZE];
+
+//volatile uint8_t uart_flag;
 volatile uint16_t element;
 volatile uint8_t uart_data_pack_received;
 
@@ -54,18 +56,15 @@ void init(void)
  */
 void send(char *message)
 {
-	//if(!(uart_data_pack_received))
-
 		PORTB &= ~(1<<PINB0);
-		uart_flag=1;
+		//uart_flag=1;
 		do
 		{
 
 			while (!( UCSRA & (1<<UDRE)));	//czekaj aż poprzednie sie wyśle
-								//również tylko wtedy mozna pisać do tego
-								// bufora
+							//również tylko wtedy mozna pisać do tego bufora
 
-			UDR = *message;				//wpakowanie danych do bufora
+			UDR = *message;			//wpakowanie danych do bufora
 
 		}while(*(++message));			//jeśli napotkasz koniec 	cstring to skoncz wysyłanie
 							//(symbol '/0')
@@ -80,11 +79,7 @@ void send(char *message)
  */
 ISR(USART_RXC_vect)
 {
-	if(uart_flag)
-	{
-		//element=0;
-		uart_flag=0;
-	}
+
 	PORTD &=~(1<<PIND7);
 	uart_data_pack_received=0;
 
@@ -94,16 +89,14 @@ ISR(USART_RXC_vect)
 	PORTD |=(1<<PIND7);
 
 	//TIFR |=(0<<TOV0);	//clear overflow flag
-	TIMSK |=(1<<TOIE0); //enable timer0 overflow IRQ
+	TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
  	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
-
-
 }
 
 /**
  * @brief timer irq routine
  * @detils Interrupt after last receive byte from uart, set
- *		last iput array element as \0
+ *         last iput array element as \0
  */
 ISR(TIMER0_OVF_vect)
 {
@@ -112,8 +105,6 @@ ISR(TIMER0_OVF_vect)
 	element=0;
 	TIMSK &=~(1<<TOIE0); //disable timer0 overflow IRQ
 	TCNT0 = (uint8_t)0; //Timer0 counter register value
-	//PORTB ^=(1<<PINB0);
-
 }
 /**
  * @brief Initialize pointers to uart struct
@@ -123,5 +114,5 @@ void uart_init_struct(comm_typedef *uart)
 	uart->init=&init;
 	uart->send=&send;
 	uart->received=uart_receive_data;
-	uart->received_data_pack=&uart_data_pack_received;
+	uart->received_data_pack_flag=&uart_data_pack_received;
 }

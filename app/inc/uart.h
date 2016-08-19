@@ -2,15 +2,51 @@
 #define _uart_h
 
 #include <avr/io.h>
-typedef struct 
+
+/**
+ * @struct comm_typedef
+ * @brief This structure contains all efinitions to uart library.
+ *        Watch example to know how to use it.
+ * @var (*init)
+ *      Function pointer to init function. Initialize uart.
+ *
+ * @var (*send)
+ *      Function pointer to send function. Send cstrinf via uart
+ *
+ * @var *received
+ *      Pointer to array with input cstring (end by \0)
+ *      @bug Can receive max no more than ~910 bytes
+ *
+ * @var *received_data_pack_flag
+ *      Pointer to variable signalize end of incoming data transmission
+ *      When 1 -> there is new data in *received
+ *      @warning Clear by user!
+ *
+ */
+typedef struct
 {
 	void (*init)();
 	void (*send)(char *message);
 	char *received;
-	uint8_t *received_data_pack;
+	volatile uint8_t *received_data_pack_flag;
 }comm_typedef;
 
-
+/**
+ * @brief Function to initialize
+ * @details
+ *
+ * @param [in] *uart pointer to comm_typedef struct
+ */
 void uart_init_struct(comm_typedef *uart);
 
+/**
+ * @example
+ */
+/*
+ comm_typedef uart;
+ uart_init_struct(&uart);
+ uart.init();
+
+ uart.send("hello");
+*/
 #endif

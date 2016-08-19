@@ -10,13 +10,14 @@ int main(void)
 
 	while(1)
 	{
-		//PORTB ^=(1<<PINB0);
-		_delay_ms(1000);
+		//_delay_ms(1000);
 
-		//if((uart.received_data_pack))
+		if(*uart.received_data_pack)
+		{
+			*uart.received_data_pack=0;
 
-		uart.send(uart.received);
-		uart.received_data_pack=0;
+			uart.send(uart.received);
 
+		}
 	}
 }
