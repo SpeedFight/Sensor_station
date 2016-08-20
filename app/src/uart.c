@@ -70,7 +70,7 @@ volatile uint8_t uart_data_pack_received;
 /**
  * @brief Inicjalizacja modułu uart
  */
-void init_uart(void)
+static void init_uart(void)
 {
 	LED_DDR(TX_PORT) |=(1<<LED_PIN(TX_PIN));	//set led pins as output
 	LED_DDR(RX_PORT) |=(1<<LED_PIN(RX_PIN));
@@ -94,7 +94,7 @@ void init_uart(void)
 /**
  * @brief Wysłanie cstringa uartem
  */
-void send(char *message)
+static void send(char *message)
 {
 		TX_LED_ON;
 		do

@@ -11,7 +11,7 @@
  * @brief
  * @detail
  */
-void send(      void (*send_function)(char *),  /*function pointer*/
+static void send_esp(      void (*send_function)(char *),  /*function pointer*/
                 char *message)                  /*message (cstring)*/
 {
         send_function(message);
