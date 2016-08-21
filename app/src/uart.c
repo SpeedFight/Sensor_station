@@ -62,10 +62,10 @@
 
 ///@}
 
-char uart_receive_data[BUFFER_SIZE];
+static char uart_receive_data[BUFFER_SIZE];
 
-volatile uint16_t element;
-volatile uint8_t uart_data_pack_received;
+static volatile uint16_t element;
+static volatile uint8_t uart_data_pack_received;
 
 /**
  * @brief Inicjalizacja modułu uart
