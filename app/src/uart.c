@@ -22,14 +22,14 @@
 #define BAUD_UART 19200u		//4Mhz -> 19200 -> OK
 #define UBRR_value (F_CPU/16/BAUD_UART-1)
 
-#define TIMER_COMPARE_VALUE	(255-200) //(1024/F_CPU)*10 = 0.05s (for ~1Mhz)
+#define TIMER_COMPARE_VALUE	(255-1) //(1024/F_CPU)*10 = 0.05s (for ~1Mhz)
 					 //(clk_div/F_CPU)*mulipy_by
 					 //set value 0-255
 					 //it describe time after lock input buffer
 					 //e.g. max quiet time without no new byte in input
 					 //after this time, last char in input array become '\0'
 
-#define BUFFER_SIZE 1024u		//input buffer size
+#define BUFFER_SIZE 400u		//input buffer size
 //BUG -> cant receive more than ~910 bytes
 
 
@@ -67,6 +67,9 @@ static char uart_receive_data[BUFFER_SIZE];
 static volatile uint16_t element;
 static volatile uint8_t uart_data_pack_received;
 
+static volatile uint8_t i;	//volatile to calculate multiply 8bit timer time;
+#define TIMER 5	//multiple time after last received data
+
 /**
  * @brief Inicjalizacja modułu uart
  */
@@ -103,6 +106,9 @@ static void send(char *message)
 			while (!( UCSRA & (1<<UDRE)));	//Wait to send previous data
 							//only then you can write/read to UDR
 
+
+			while(!(uart_data_pack_received));
+
 			UDR = *message;			//write data to output buffer
 
 		}while(*(++message));			//end when you meet cstring end ('\0')
@@ -117,6 +123,7 @@ static void send(char *message)
  */
 ISR(USART_RXC_vect)
 {
+	i=0;
 	RX_LED_ON;
 	uart_data_pack_received=0;
 
@@ -136,11 +143,19 @@ ISR(USART_RXC_vect)
  */
 ISR(TIMER0_OVF_vect)
 {
+
+
 	uart_receive_data[element]=NULL;	//set end of input data array
-	uart_data_pack_received=1;	//Input data ready to read!
-	element=0;	//clear
-	TIMSK &=~(1<<TOIE0); //disable timer0 overflow IRQ
-	TCNT0 = (uint8_t)0; //Timer0 counter register value
+
+	if(++i>TIMER)
+	{
+
+		uart_data_pack_received=1;	//Input data ready to read!
+		element=0;	//clear
+		i=0;
+		TIMSK &=~(1<<TOIE0); //disable timer0 overflow IRQ
+		TCNT0 = (uint8_t)0; //Timer0 counter register value
+	}
 }
 /**
  * @brief Initialize pointers to uart struct

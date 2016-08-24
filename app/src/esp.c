@@ -7,15 +7,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include "stdio.h"
+//#include "stdio.h"
 
-
-#define TMP_BUFF_SIZE 128
 #define DELAY_TIME 750
 
 static void (*send_uart)(char *);    //pointer to send via uart function
 
-static char tmp_buff[TMP_BUFF_SIZE];    //buffer for all cstrings
 static char *input_buff;
 static volatile uint8_t *received_data_pack_flag;
 
@@ -25,9 +22,9 @@ static volatile uint8_t *received_data_pack_flag;
 static uint8_t log_to_wifi(char *ssid,char *password)
 {
         send_uart("AT+CWMODE=1\n\r");
-        snprintf(tmp_buff, TMP_BUFF_SIZE,"AT+CWJAP=\"%s\",\"%s\"\n\r",ssid,password);   //format text to log into wifi
         _delay_ms(DELAY_TIME);
-        send_uart(tmp_buff);
+        send_uart("AT+CWJAP=\"");send_uart(ssid);send_uart("\",\"");send_uart(password);send_uart("\"\n\r");
+        _delay_ms(DELAY_TIME);
 
         //sprawdzenie czy sie udało++
         return 1;
@@ -36,7 +33,7 @@ static uint8_t log_to_wifi(char *ssid,char *password)
 static uint8_t ping()
 {
         send_uart("AT+PING=\"www.google.pl\"\n\r");
-
+        _delay_ms(DELAY_TIME);
         //sprawdzanie czy pozytywne++
         return 1;
 }
@@ -47,7 +44,8 @@ static uint8_t log_to_TCP(char *ip, char *port)
         _delay_ms(DELAY_TIME);
         send_uart("AT+CIPMUX=0\n\r");
         _delay_ms(DELAY_TIME);
-        snprintf(tmp_buff, TMP_BUFF_SIZE,"AT+CIPSTART=\"TCP\",\"%s\",%s\n\r",ip,port);   //format text to log into TCP
+
+        send_uart("AT+CIPSTART=\"TCP\",\"");send_uart(ip);send_uart("\",");send_uart(port);send_uart("\n\r");
         _delay_ms(DELAY_TIME);
 
         //sprawdzenie czy sie udało++
@@ -94,8 +92,8 @@ void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send fu
 
 //char *cipstart="AT+CIPSTART=\"TCP\",\"184.106.153.149\",80\n\r";
 
-char *cipsend="AT+CIPSEND=73\n\r";
+static char *cipsend="AT+CIPSEND=73\n\r";
 
-char *get_data="GET https://api.thingspeak.com/channels/143012/feeds.json?results=1&api_key=xxx";
+static char *get_data="GET https://api.thingspeak.com/channels/143012/feeds.json?results=1&api_key=xxx";
 
-char *send_data="GET https://api.thingspeak.com/update?api_key=xxx&field1=0";
+static char *send_data="GET https://api.thingspeak.com/update?api_key=xxx&field1=0";
