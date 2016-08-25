@@ -8,6 +8,7 @@
 #include <util/delay.h>
 
 //#include "stdio.h"
+#include <string.h>
 
 #define DELAY_TIME 750
 
@@ -59,6 +60,19 @@ static uint8_t send()
         //send_data++
         //logout from TCP++
         return 1;
+}
+
+static void wait_to_log_wifi(void)
+{
+        do
+        {
+                while(!(*received_data_pack_flag));
+
+
+        }while(strstr(input_buff,"GOT IP"));     //WIFI GOT IP
+
+
+
 }
 
 /**

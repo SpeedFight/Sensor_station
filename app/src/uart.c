@@ -129,6 +129,7 @@ ISR(USART_RXC_vect)
 
 	uart_receive_data[element++]=UDR;	//put input data to input array
 
+	if(element>BUFFER_SIZE) element=0;
 	//TIFR |=(0<<TOV0);	//clear overflow flag
 	TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
  	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
