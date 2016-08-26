@@ -68,7 +68,7 @@ static volatile uint16_t element;
 static volatile uint8_t uart_data_pack_received;
 
 static volatile uint8_t i;	//volatile to calculate multiply 8bit timer time;
-#define TIMER 5	//multiple time after last received data
+#define TIMER 20	//multiple time after last received data
 
 /**
  * @brief Inicjalizacja modułu uart
@@ -116,6 +116,12 @@ static void send(char *message)
 		TX_LED_OFF;
 
 }
+
+static void input_buffer_pointer_to_beginning()
+{
+	element=0;
+}
+
 
 /**
  * @brief Receive uart data byte interrupt routine
@@ -167,4 +173,5 @@ void uart_init_struct(comm_typedef *uart)
 	uart->send=&send;
 	uart->received=uart_receive_data;
 	uart->received_data_pack_flag=&uart_data_pack_received;
+	uart->set_input_buffer_pointer_to_beginning=&input_buffer_pointer_to_beginning;
 }

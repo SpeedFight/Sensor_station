@@ -34,6 +34,8 @@ typedef struct
 	void (*send)(char *message);
 	char *received;
 	volatile uint8_t *received_data_pack_flag;
+
+	void (*set_input_buffer_pointer_to_beginning)();
 }comm_typedef;
 
 /**
