@@ -68,7 +68,10 @@ static volatile uint16_t element;
 static volatile uint8_t uart_data_pack_received;
 
 static volatile uint8_t i;	//volatile to calculate multiply 8bit timer time;
-#define TIMER 20	//multiple time after last received data
+#define TIMER 10	//multiple time after last received data
+/*
+	(1/(4e6/1024))*255*10 =
+ */
 
 /**
  * @brief Inicjalizacja modułu uart
@@ -140,7 +143,7 @@ ISR(USART_RXC_vect)
 	TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
  	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
 
-	RX_LED_OFF;
+
 }
 
 /**
@@ -162,6 +165,7 @@ ISR(TIMER0_OVF_vect)
 		i=0;
 		TIMSK &=~(1<<TOIE0); //disable timer0 overflow IRQ
 		TCNT0 = (uint8_t)0; //Timer0 counter register value
+		RX_LED_OFF;
 	}
 }
 /**

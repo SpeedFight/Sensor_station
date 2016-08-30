@@ -11,8 +11,12 @@ int main(void)
 	uart_init_struct(&uart);
 	uart.init();
 
-	//esp_typedef esp;
-	//esp_init_struct(uart.send,uart.received,&esp);
+	esp_typedef esp;
+	esp_init_struct(uart.send,
+			uart.set_input_buffer_pointer_to_beginning,
+			uart.received,
+			uart.received_data_pack_flag,
+			&esp);
 
 	DDRD |=(1<<PIN6);
 	//PORTD &=~(1<<PIN6);
@@ -20,34 +24,53 @@ int main(void)
 
 	//przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 
+	/*
+	do {
+		while(!(*uart.received_data_pack_flag));
+
+
+	}while(strstr(uart.received,"GOT IP"));     //WIFI GOT IP
+	PORTD &=~(1<<PIN6);
+
+	_delay_ms(1000);
+	PORTD |=(1<<PIN6);
+	*/
+
+PORTD &=~(1<<PIN6);
+	_delay_ms(1000);
 	while(1)
 	{
+		if(esp.test_ap())
+		{
+			PORTD &=~(1<<PIN6);
+			_delay_ms(500);
+
+			PORTD |=(1<<PIN6);
+		}
+		/*
 		//esp.connect_to_wifi("nazwa","haslo");
 		//esp.test_connection();
 		//esp.connect_to_TCP("111.111.111.111","80");
 
 		//_delay_ms(1000);
 		//uart.send(uart.received);
+		_delay_ms(500);
+		uart.send("AT+CWJAP?\r\n");
+		uart.set_input_buffer_pointer_to_beginning();
 		if(*uart.received_data_pack_flag)
 		{
-			uart.send("Przyszło: ");
-			uart.send(uart.received);
-			uart.send("\n\r\n");
 
 
-			PORTD &=~(1<<PIN6);
-
-			if((strstr(uart.received,"OK")))
+			if(strstr(uart.received,"+CWJAP"))
 			{
+
+				PORTD &=~(1<<PIN6);
 				_delay_ms(500);
-				uart.send("Przyjąłem: ");
-				uart.send(uart.received);
+
+				PORTD |=(1<<PIN6);
 			}
-			PORTD |=(1<<PIN6);
-
-
-			uart.send("**********************************\n\r\n\r");
-			*uart.received_data_pack_flag=0;
+			//uart.send(uart.received);
 		}
+		*/
 	}
 }
