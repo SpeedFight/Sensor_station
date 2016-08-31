@@ -60,12 +60,17 @@
 
 #define NULL '\0'
 
+
+#define MANUAL	0
+#define AUTO	1
+
 ///@}
 
 static char uart_receive_data[BUFFER_SIZE];
 
 static volatile uint16_t element;
 static volatile uint8_t uart_data_pack_received;
+static uint8_t receive_mode=MANUAL;
 
 static volatile uint8_t i;	//volatile to calculate multiply 8bit timer time;
 #define TIMER 10	//multiple time after last received data
@@ -125,6 +130,11 @@ static void input_buffer_pointer_to_beginning()
 	element=0;
 }
 
+static void set_null_to_begin()
+{
+	uart_receive_data[0]=NULL;
+}
+
 
 /**
  * @brief Receive uart data byte interrupt routine
@@ -132,18 +142,24 @@ static void input_buffer_pointer_to_beginning()
  */
 ISR(USART_RXC_vect)
 {
-	i=0;
 	RX_LED_ON;
-	uart_data_pack_received=0;
 
 	uart_receive_data[element++]=UDR;	//put input data to input array
+	if(element>BUFFER_SIZE-1) element=0;
 
-	if(element>BUFFER_SIZE) element=0;
-	//TIFR |=(0<<TOV0);	//clear overflow flag
-	TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
- 	TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
-
-
+	if(receive_mode==MANUAL)
+	{
+		uart_data_pack_received=0;
+		uart_receive_data[element]=NULL;
+		RX_LED_OFF;
+	}
+	else	//AUTO
+	{
+		i=0;
+		//TIFR |=(0<<TOV0);	//clear overflow flag
+		TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
+		TCNT0 = (uint8_t)TIMER_COMPARE_VALUE; //Timer0 counter register value
+	}
 }
 
 /**
@@ -153,8 +169,7 @@ ISR(USART_RXC_vect)
  */
 ISR(TIMER0_OVF_vect)
 {
-
-
+	RX_LED_OFF;
 	uart_receive_data[element]=NULL;	//set end of input data array
 
 	if(++i>TIMER)
@@ -178,4 +193,5 @@ void uart_init_struct(comm_typedef *uart)
 	uart->received=uart_receive_data;
 	uart->received_data_pack_flag=&uart_data_pack_received;
 	uart->set_input_buffer_pointer_to_beginning=&input_buffer_pointer_to_beginning;
+	uart->set_null_to_buff_beginning=&set_null_to_begin;
 }

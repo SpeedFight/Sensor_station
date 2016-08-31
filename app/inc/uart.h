@@ -36,6 +36,7 @@ typedef struct
 	volatile uint8_t *received_data_pack_flag;
 
 	void (*set_input_buffer_pointer_to_beginning)();
+	void (*set_null_to_buff_beginning)();
 }comm_typedef;
 
 /**
