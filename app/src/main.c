@@ -20,33 +20,68 @@ int main(void)
 */
 	DDRD |=(1<<PIN6);
 	PORTD &=~(1<<PIN6);
-	_delay_ms(2000);
+	_delay_ms(100);
 	PORTD |=(1<<PIN6);
 
 	//przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 
-	PORTD &=~(1<<PIN6);
-	_delay_ms(1000);
-	PORTD |=(1<<PIN6);
+	uint8_t sprawdz=0;
 	while(1)
 	{
 
+		//uart.send("Komenda_czekam_na_odp!");
 
-		if(*uart.received_data_pack_flag)
+		if(sprawdz==0)
 		{
-			if(strstr(uart.received,"OK"))
+			if(*uart.received_data_pack_flag)
 			{
-				PORTD &=~(1<<PIN6);
-				_delay_ms(500);
-				PORTD |=(1<<PIN6);
+				_delay_us(100);
+				for(uint16_t try=0;try<(5*10000);try++)
+				{
+					if(strstr(uart.received,"ready"))
+					{
+						PORTD &=~(1<<PIN6);
+						_delay_ms(2000);
+						PORTD |=(1<<PIN6);
 
-				uart.send(uart.received);
-				uart.set_input_buffer_pointer_to_beginning();
-				uart.set_null_to_buff_beginning();
+						uart.set_input_buffer_pointer_to_beginning();
+						uart.set_null_to_buff_beginning();
+						*uart.received_data_pack_flag=0;
+						sprawdz=1;
+						//break;
+					}
+				}
 			}
 		}
-		_delay_ms(500);
-		uart.send(uart.received);
+
+		if(sprawdz)
+		{
+			uart.send("AT\r\n");
+
+			for(uint16_t try=0;try<(5*10000);try++)
+			{
+				_delay_us(100);
+				if(strstr(uart.received,"OK"))
+				{
+					if(*uart.received_data_pack_flag)
+					{
+						PORTD &=~(1<<PIN6);
+						_delay_ms(2000);
+						PORTD |=(1<<PIN6);
+
+						uart.set_input_buffer_pointer_to_beginning();
+						uart.set_null_to_buff_beginning();
+						*uart.received_data_pack_flag=0;
+						sprawdz=1;
+						//break;
+					}
+				}
+			}
+		}
+
+
+		_delay_ms(1000);
+		//uart.send(uart.received);
 
 	}
 }

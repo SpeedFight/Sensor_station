@@ -107,12 +107,14 @@ static void init_uart(void)
  */
 static void send(char *message)
 {
+	//if(*message)//check first element
+	{
 		TX_LED_ON;
 		do
 		{
 
 			while (!( UCSRA & (1<<UDRE)));	//Wait to send previous data
-							//only then you can write/read to UDR
+			//only then you can write/read to UDR
 
 
 			while(!(uart_data_pack_received));
@@ -122,6 +124,7 @@ static void send(char *message)
 		}while(*(++message));			//end when you meet cstring end ('\0')
 
 		TX_LED_OFF;
+	}
 
 }
 
@@ -135,7 +138,6 @@ static void set_null_to_begin()
 	uart_receive_data[0]=NULL;
 }
 
-
 /**
  * @brief Receive uart data byte interrupt routine
  * @detals
@@ -145,16 +147,18 @@ ISR(USART_RXC_vect)
 	RX_LED_ON;
 
 	uart_receive_data[element++]=UDR;	//put input data to input array
+	uart_receive_data[element]=NULL;
 	if(element>BUFFER_SIZE-1) element=0;
 
 	if(receive_mode==MANUAL)
 	{
 		uart_data_pack_received=1;
-		uart_receive_data[element]=NULL;
+
 		RX_LED_OFF;
 	}
 	else	//AUTO
 	{
+		uart_data_pack_received=0;
 		i=0;
 		//TIFR |=(0<<TOV0);	//clear overflow flag
 		TIMSK |=(1<<TOIE0);  	//enable timer0 overflow IRQ
