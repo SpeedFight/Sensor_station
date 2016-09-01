@@ -20,6 +20,7 @@ static void (*send_uart)(char *);    //pointer to send via uart function
 static char *input_buff;
 static volatile uint8_t *received_data_pack_flag;
 static void (*p_set_input_buffer_pointer_to_beginning)();
+static void (*p_set_null_to_buff_beginning)();
 
 
 #define PIN_RESET	5
@@ -186,11 +187,12 @@ static uint8_t send(char *data,uint16_t *data_size,char *ip, char *port)
  * @brief
  * @detail
  */
-void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send function
-                void (*set_beggining_input_buffer)(),
-                char *ptr_input_array, //pointer to input data buffer
-                volatile uint8_t *received_data_flag,
-                esp_typedef *esp)       //pointer to struct
+ void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send function
+                 void (*set_beggining_input_buffer)(),
+                 void (*set_null_to_buff_beginning)(),
+                 char * ptr_input_array, //pointer to input data buffer
+                 volatile uint8_t *received_data_flag,
+                 esp_typedef *esp)       //pointer to struct
 {
         send_uart=uart_send_function;
 
@@ -199,6 +201,8 @@ void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send fu
         input_buff=ptr_input_array;
 
         p_set_input_buffer_pointer_to_beginning=set_beggining_input_buffer; //set function pointer
+
+        p_set_null_to_buff_beginning=set_null_to_buff_beginning;
 
         esp->test_internet=&ping;
         esp->test_ap=&check_connection;

@@ -10,14 +10,15 @@ int main(void)
 	comm_typedef uart;
 	uart_init_struct(&uart);
 	uart.init();
-/*
+
 	esp_typedef esp;
 	esp_init_struct(uart.send,
 			uart.set_input_buffer_pointer_to_beginning,
+			uart.set_null_to_buff_beginning,
 			uart.received,
 			uart.received_data_pack_flag,
 			&esp);
-*/
+
 	DDRD |=(1<<PIN6);
 	PORTD &=~(1<<PIN6);
 	_delay_ms(100);
@@ -71,8 +72,8 @@ int main(void)
 
 						uart.set_input_buffer_pointer_to_beginning();
 						uart.set_null_to_buff_beginning();
-						*uart.received_data_pack_flag=0;
-						sprawdz=1;
+						//*uart.received_data_pack_flag=0;
+						//sprawdz=1;
 						//break;
 					}
 				}
