@@ -149,7 +149,7 @@ ISR(USART_RXC_vect)
 
 	if(receive_mode==MANUAL)
 	{
-		uart_data_pack_received=0;
+		uart_data_pack_received=1;
 		uart_receive_data[element]=NULL;
 		RX_LED_OFF;
 	}

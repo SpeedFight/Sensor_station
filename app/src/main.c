@@ -7,9 +7,9 @@
 
 int main(void)
 {
-	//comm_typedef uart;
-	//uart_init_struct(&uart);
-	//uart.init();
+	comm_typedef uart;
+	uart_init_struct(&uart);
+	uart.init();
 /*
 	esp_typedef esp;
 	esp_init_struct(uart.send,
@@ -18,7 +18,7 @@ int main(void)
 			uart.received_data_pack_flag,
 			&esp);
 */
-	//DDRD |=(1<<PIN6);
+	DDRD |=(1<<PIN6);
 	PORTD &=~(1<<PIN6);
 	_delay_ms(2000);
 	PORTD |=(1<<PIN6);
@@ -27,10 +27,11 @@ int main(void)
 
 	PORTD &=~(1<<PIN6);
 	_delay_ms(1000);
+	PORTD |=(1<<PIN6);
 	while(1)
 	{
 
-/*
+
 		if(*uart.received_data_pack_flag)
 		{
 			if(strstr(uart.received,"OK"))
@@ -38,10 +39,14 @@ int main(void)
 				PORTD &=~(1<<PIN6);
 				_delay_ms(500);
 				PORTD |=(1<<PIN6);
+
+				uart.send(uart.received);
 				uart.set_input_buffer_pointer_to_beginning();
 				uart.set_null_to_buff_beginning();
 			}
 		}
-	*/
-	}	
+		_delay_ms(500);
+		uart.send(uart.received);
+
+	}
 }
