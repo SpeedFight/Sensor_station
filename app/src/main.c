@@ -30,6 +30,23 @@ int main(void)
 	while(1)
 	{
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+/*
 		//uart.send("Komenda_czekam_na_odp!");
 
 		if(sprawdz==0)
@@ -83,6 +100,6 @@ int main(void)
 
 		_delay_ms(1000);
 		//uart.send(uart.received);
-
+*/
 	}
 }

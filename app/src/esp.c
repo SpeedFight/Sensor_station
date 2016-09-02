@@ -14,6 +14,7 @@
 
 #define DELAY_TIME 750
 #define MAX_TRY 15
+#define MAX_TRY_TIME 13UL //seconds
 
 static void (*send_uart)(char *);    //pointer to send via uart function
 
@@ -44,8 +45,8 @@ static void reset()
         RESET_OFF;
         _delay_ms(500);
 }
-
-static uint8_t esp_accept_comand(char *ok_string)
+/*
+static uint8_t esp_accept_comand(char *ok_string) //nope
 {
     _delay_ms(DELAY_TIME);
     p_set_input_buffer_pointer_to_beginning();
@@ -55,51 +56,147 @@ static uint8_t esp_accept_comand(char *ok_string)
             return 1;
     }
     return 0;
+}*/
+
+static uint8_t check_input_buff_and_clear(char *check)
+{
+    if(strstr(input_buff,check))
+    {
+        p_set_input_buffer_pointer_to_beginning();
+        p_set_null_to_buff_beginning();
+        *received_data_pack_flag=0;
+        return 1;
+    }
+    else
+        return 0;
 }
+
+static uint8_t check_input_buff(char *check)
+{
+    if(strstr(input_buff,check))
+    {
+        return 1;
+    }
+    else
+        return 0;
+}
+
+static void clear_input_buff()
+{
+    p_set_input_buffer_pointer_to_beginning();
+    p_set_null_to_buff_beginning();
+    *received_data_pack_flag=0;
+}
+
+static uint8_t esp_accept_comand(char *ok_string)
+{
+    for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
+    {
+        _delay_us(100);
+        if(*received_data_pack_flag)
+        {
+            try_time=0;
+            for(;try_time<(MAX_TRY_TIME*10000);try_time++)
+            {
+                _delay_us(100);
+
+                if(check_input_buff_and_clear(ok_string))
+                    return 1;
+
+                //here and more if's
+            }
+        }
+    }
+    return 0;
+}
+
+
+
 static uint8_t ping()
 {
-    send_uart("AT+PING=\"www.google.pl\"\r\n");
+    for(uint8_t try=0;try>MAX_TRY;try++)
+    {
+        send_uart("AT+PING=\"www.google.pl\"\r\n");
 
-    return (esp_accept_comand("OK"));
+        for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
+        {
+            _delay_us(100);
+            if(*received_data_pack_flag)
+            {
+                try_time=0;
+                for(;try_time<(MAX_TRY_TIME*10000);try_time++)
+                {
+                    _delay_us(100);
+
+                    if(check_input_buff_and_clear("OK"))
+                        return 1;
+
+                    //here and more if's
+                }
+            }
+        }
+        //if(!(try%4))
+            //reset();
+
+        //_delay_ms(1500);
+    }
+    return 0;
+
 
 }
+
 
 static uint8_t check_connection(void)
 {
-    for(uint8_t try=0;try<MAX_TRY;try++)
+
+
+    for(uint8_t try=0;try>MAX_TRY;try++)
     {
-
         send_uart("AT+CWJAP?\r\n");
-        _delay_us(150);
-        p_set_input_buffer_pointer_to_beginning();
-        if(*received_data_pack_flag)
+
+        for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
         {
-            /*
-            if(strstr(input_buff,"CWJAP:1"))//connection timeout
-            ;
-
-            if(strstr(input_buff,"CWJAP:2"))//wrong password
-            ;
-
-            if(strstr(input_buff,"CWJAP:3"))//can not found target ap
-            ;
-
-            if(strstr(input_buff,"CWJAP:4"))//connect fail
-            ;
-            */
-            if(strstr(input_buff,"CWJAP:\""))//OK
+            _delay_us(100);
+            if(*received_data_pack_flag)
             {
-                    return 1;
+                try_time=0;
+                for(;try_time<(MAX_TRY_TIME*10000);try_time++)
+                {
+                    _delay_us(100);
+
+                    if(check_input_buff_and_clear("CWJAP:\""))
+                        return 1;
+
+                    if(check_input_buff_and_clear("busy"))
+                        try_time--;
+
+                    if(check_input_buff_and_clear("No AP"))
+                        try_time--;
+
+                    /*
+                    if(strstr(input_buff,"CWJAP:1"))//connection timeout
+                    ;
+
+                    if(strstr(input_buff,"CWJAP:2"))//wrong password
+                    ;
+
+                    if(strstr(input_buff,"CWJAP:3"))//can not found target ap
+                    ;
+
+                    if(strstr(input_buff,"CWJAP:4"))//connect fail
+                    ;
+                    */
+
+                    //here and more if's
+                }
             }
+        }
+        //if(!(try%4))
+            //reset();
+
+        //_delay_ms(1500);
     }
-        if(!(try%4))
-            reset();
-
-        _delay_ms(1500);
-
-    }
-
-        return 0;
+    return 0;
 }
 
 static uint8_t log_to_wifi(char *ssid,char *password)
