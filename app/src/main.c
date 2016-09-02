@@ -26,10 +26,26 @@ int main(void)
 
 	//przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 
-	uint8_t sprawdz=0;
 	while(1)
 	{
 
+		while (!(esp.reset_until_ready()));
+		_delay_ms(1500);
+		while(1)
+		{
+
+			if(esp.test_ap()){
+				PORTD &=~(1<<PIN6);
+				_delay_ms(2000);
+				PORTD |=(1<<PIN6);
+			}
+
+			if(esp.test_internet()){
+				PORTD &=~(1<<PIN6);
+				_delay_ms(2000);
+				PORTD |=(1<<PIN6);
+			}
+		}
 
 
 
@@ -45,7 +61,8 @@ int main(void)
 
 
 
-		
+
+
 /*
 		//uart.send("Komenda_czekam_na_odp!");
 

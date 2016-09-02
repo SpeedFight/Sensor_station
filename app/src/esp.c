@@ -35,15 +35,16 @@ static void (*p_set_null_to_buff_beginning)();
 #define RESET_PORT(a)	_RESET_PORT(a)
 #define RESET_DDR(a) 	_RESET_DDR(a)
 
-#define RESET_ON	RESET_PORT(PORT_RESET) &= ~(1<<RESET_PIN(PIN_RESET));
-#define RESET_OFF	RESET_PORT(PORT_RESET) |= (1<<RESET_PIN(PIN_RESET));
+#define RESET_OFF	RESET_PORT(PORT_RESET) &= ~(1<<RESET_PIN(PIN_RESET));
+#define RESET_ON	RESET_PORT(PORT_RESET) |= (1<<RESET_PIN(PIN_RESET));
+
 
 static void reset()
 {
         RESET_ON;
-        _delay_ms(500);
+        _delay_ms(1000);
         RESET_OFF;
-        _delay_ms(500);
+        RESET_ON;
 }
 /*
 static uint8_t esp_accept_comand(char *ok_string) //nope
@@ -58,18 +59,6 @@ static uint8_t esp_accept_comand(char *ok_string) //nope
     return 0;
 }*/
 
-static uint8_t check_input_buff_and_clear(char *check)
-{
-    if(strstr(input_buff,check))
-    {
-        p_set_input_buffer_pointer_to_beginning();
-        p_set_null_to_buff_beginning();
-        *received_data_pack_flag=0;
-        return 1;
-    }
-    else
-        return 0;
-}
 
 static uint8_t check_input_buff(char *check)
 {
@@ -78,7 +67,9 @@ static uint8_t check_input_buff(char *check)
         return 1;
     }
     else
+    {
         return 0;
+    }
 }
 
 static void clear_input_buff()
@@ -88,20 +79,33 @@ static void clear_input_buff()
     *received_data_pack_flag=0;
 }
 
-static uint8_t esp_accept_comand(char *ok_string)
+static uint8_t check_input_buff_and_clear(char *check)
 {
-    for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
+    if(strstr(input_buff,check))
+    {
+        clear_input_buff();
+        return 1;
+    }
+    else
+        return 0;
+}
+
+static uint8_t esp_accept_comand(char *ok_string) //2 second wait
+{
+    for(uint32_t try_time=0;try_time<(2*10000);try_time++)
     {
         _delay_us(100);
         if(*received_data_pack_flag)
         {
             try_time=0;
-            for(;try_time<(MAX_TRY_TIME*10000);try_time++)
+            for(;try_time<(2*10000);try_time++)
             {
                 _delay_us(100);
 
                 if(check_input_buff_and_clear(ok_string))
+                {
                     return 1;
+                }
 
                 //here and more if's
             }
@@ -110,15 +114,47 @@ static uint8_t esp_accept_comand(char *ok_string)
     return 0;
 }
 
+//static uint8_t reset_until_ready()
+static uint8_t reset_until_ready()
+{
+    reset();
+    for(uint32_t try_time=0;try_time<(2*10000);try_time++)
+    {
+        _delay_us(100);
+        if(*received_data_pack_flag)
+        {
+            try_time=0;
+            for(;try_time<(1*10000);try_time++)
+            {
+                _delay_us(100);
+
+                if(check_input_buff_and_clear("ready"))
+                {
+                    _delay_ms(100);
+
+                    if(!(*input_buff))//no new data
+                        return 1;
+                    else return 0;
+                }
+
+                //here and more if's
+            }
+        }
+        try_time=0;
+        reset();
+    }
+    return 0;
+}
+
 
 
 static uint8_t ping()
 {
-    for(uint8_t try=0;try>MAX_TRY;try++)
+    for(uint8_t try=0;try<MAX_TRY;try++)
     {
         send_uart("AT+PING=\"www.google.pl\"\r\n");
 
-        for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
+        for(uint32_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
         {
             _delay_us(100);
             if(*received_data_pack_flag)
@@ -141,31 +177,36 @@ static uint8_t ping()
         //_delay_ms(1500);
     }
     return 0;
-
-
+}
+/*
+static uint8_t ping()
+{
+    send_uart("AT+PING=\"www.google.pl\"\r\n");
+    send_uart(input_buff);
+    return 1;
 }
 
-
+*/
 static uint8_t check_connection(void)
 {
-
-
-    for(uint8_t try=0;try>MAX_TRY;try++)
+    for(uint8_t try=0;try<MAX_TRY;try++)
     {
         send_uart("AT+CWJAP?\r\n");
 
-        for(uint16_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
+        for(uint32_t try_time=0;try_time<(4UL*10000);try_time++)
         {
             _delay_us(100);
             if(*received_data_pack_flag)
             {
                 try_time=0;
-                for(;try_time<(MAX_TRY_TIME*10000);try_time++)
+                for(;try_time<(4UL*10000);try_time++)
                 {
                     _delay_us(100);
 
                     if(check_input_buff_and_clear("CWJAP:\""))
+                    {
                         return 1;
+                    }
 
                     if(check_input_buff_and_clear("busy"))
                         try_time--;
@@ -291,6 +332,8 @@ static uint8_t send(char *data,uint16_t *data_size,char *ip, char *port)
                  volatile uint8_t *received_data_flag,
                  esp_typedef *esp)       //pointer to struct
 {
+    RESET_DDR(PORT_RESET) |=(1<<RESET_PIN(PIN_RESET));
+
         send_uart=uart_send_function;
 
         received_data_pack_flag=received_data_flag;
@@ -303,6 +346,7 @@ static uint8_t send(char *data,uint16_t *data_size,char *ip, char *port)
 
         esp->test_internet=&ping;
         esp->test_ap=&check_connection;
+        esp->reset_until_ready=&reset_until_ready;
         //esp->connect_to_wifi=&log_to_wifi;
         //esp->connect_to_TCP=&log_to_TCP;
         //esp->received_data_pack_flag=received_data_pack_flag;

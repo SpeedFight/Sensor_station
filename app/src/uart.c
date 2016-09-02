@@ -107,7 +107,7 @@ static void init_uart(void)
  */
 static void send(char *message)
 {
-	//if(*message)//check first element
+	if(*message)//check first element
 	{
 		TX_LED_ON;
 		do
@@ -117,7 +117,7 @@ static void send(char *message)
 			//only then you can write/read to UDR
 
 
-			while(!(uart_data_pack_received));
+			//while(!(uart_data_pack_received));
 
 			UDR = *message;			//write data to output buffer
 
@@ -136,6 +136,8 @@ static void input_buffer_pointer_to_beginning()
 static void set_null_to_begin()
 {
 	uart_receive_data[0]=NULL;
+	uart_receive_data[1]=NULL;
+	uart_receive_data[3]=NULL;
 }
 
 /**
