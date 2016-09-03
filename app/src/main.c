@@ -29,7 +29,11 @@ int main(void)
 	while(1)
 	{
 
-		while (!(esp.reset_until_ready()));
+		while (!(esp.reset_until_ready())){
+			PORTD &=~(1<<PIN6);
+			_delay_ms(1500);
+		}
+		PORTD |=(1<<PIN6);
 		_delay_ms(1500);
 		while(1)
 		{

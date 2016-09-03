@@ -136,8 +136,9 @@ static void input_buffer_pointer_to_beginning()
 static void set_null_to_begin()
 {
 	uart_receive_data[0]=NULL;
-	uart_receive_data[1]=NULL;
-	uart_receive_data[3]=NULL;
+	for(uint16_t i=0;i<(BUFFER_SIZE-1);i++){
+		uart_receive_data[i]=NULL;
+	}
 }
 
 /**

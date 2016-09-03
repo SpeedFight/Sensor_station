@@ -118,23 +118,28 @@ static uint8_t esp_accept_comand(char *ok_string) //2 second wait
 static uint8_t reset_until_ready()
 {
     reset();
-    for(uint32_t try_time=0;try_time<(2*10000);try_time++)
+    for(uint32_t try_time=0;try_time<(1UL*10000);try_time++)
     {
         _delay_us(100);
         if(*received_data_pack_flag)
         {
-            try_time=0;
-            for(;try_time<(1*10000);try_time++)
+            //try_time=0;
+            for(;try_time<(1UL*10000);try_time++)
             {
                 _delay_us(100);
 
-                if(check_input_buff_and_clear("ready"))
+                if(check_input_buff("ready"))
                 {
-                    _delay_ms(100);
-
-                    if(!(*input_buff))//no new data
-                        return 1;
-                    else return 0;
+                    //return 1;
+                    for(;try_time<(5UL*10000);try_time++)
+                    {
+                        _delay_us(100);
+                        if(check_input_buff_and_clear("WIFI"))
+                        {
+                            //PORTD &=~(1<<PIN6);
+                            return 1;
+                        }
+                    }
                 }
 
                 //here and more if's
@@ -142,6 +147,7 @@ static uint8_t reset_until_ready()
         }
         try_time=0;
         reset();
+
     }
     return 0;
 }
@@ -152,6 +158,7 @@ static uint8_t ping()
 {
     for(uint8_t try=0;try<MAX_TRY;try++)
     {
+        clear_input_buff();
         send_uart("AT+PING=\"www.google.pl\"\r\n");
 
         for(uint32_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
@@ -191,15 +198,16 @@ static uint8_t check_connection(void)
 {
     for(uint8_t try=0;try<MAX_TRY;try++)
     {
+        clear_input_buff();
         send_uart("AT+CWJAP?\r\n");
 
-        for(uint32_t try_time=0;try_time<(4UL*10000);try_time++)
+        for(uint32_t try_time=0;try_time<(2UL*10000);try_time++)
         {
             _delay_us(100);
             if(*received_data_pack_flag)
             {
                 try_time=0;
-                for(;try_time<(4UL*10000);try_time++)
+                for(;try_time<(2UL*10000);try_time++)
                 {
                     _delay_us(100);
 
@@ -209,10 +217,10 @@ static uint8_t check_connection(void)
                     }
 
                     if(check_input_buff_and_clear("busy"))
-                        try_time--;
+                        ;//try_time--;
 
                     if(check_input_buff_and_clear("No AP"))
-                        try_time--;
+                        ;//try_time--;
 
                     /*
                     if(strstr(input_buff,"CWJAP:1"))//connection timeout
