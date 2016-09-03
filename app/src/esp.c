@@ -90,7 +90,40 @@ static uint8_t check_input_buff_and_clear(char *check)
         return 0;
 }
 
-static uint8_t esp_accept_comand(char *ok_string) //2 second wait
+static uint8_t esp_accept_comand(char *string_to_send,char *ok_string, uint8_t wait_time)
+{
+    for(uint8_t try=0;try<MAX_TRY;try++)
+    {
+        clear_input_buff();
+        send_uart(string_to_send);
+
+        for(uint32_t try_time=0;try_time<((uint32_t)wait_time*10000);try_time++)
+        {
+            _delay_us(100);
+            if(*received_data_pack_flag)
+            {
+                try_time=0;
+                for(;try_time<((uint32_t)wait_time*10000);try_time++)
+                {
+                    _delay_us(100);
+
+                    if(check_input_buff_and_clear(ok_string))
+                        return 1;
+
+                    //here and more if's
+                }
+            }
+        }
+        //if(!(try%4))
+            //reset();
+
+        //_delay_ms(1500);
+    }
+    return 0;
+}
+
+
+static uint8_t _esp_accept_comand(char *ok_string) //nope
 {
     for(uint32_t try_time=0;try_time<(2*10000);try_time++)
     {
@@ -156,6 +189,9 @@ static uint8_t reset_until_ready()
 
 static uint8_t ping()
 {
+
+    return (esp_accept_comand("AT+PING=\"www.google.pl\"\r\n","OK",13));
+    /*
     for(uint8_t try=0;try<MAX_TRY;try++)
     {
         clear_input_buff();
@@ -178,12 +214,10 @@ static uint8_t ping()
                 }
             }
         }
-        //if(!(try%4))
-            //reset();
 
-        //_delay_ms(1500);
     }
     return 0;
+    */
 }
 /*
 static uint8_t ping()
@@ -248,7 +282,7 @@ static uint8_t check_connection(void)
     return 0;
 }
 
-static uint8_t log_to_wifi(char *ssid,char *password)
+static uint8_t log_to_wifi(char *ssid,char *password) //poprawić
 {
         send_uart("AT+CWMODE=1\r\n");
         _delay_us(150);
@@ -262,6 +296,7 @@ static uint8_t log_to_wifi(char *ssid,char *password)
 
 static uint8_t log_to_TCP(char *ip, char *port)
 {
+    /*
     for(uint8_t i=0;i<MAX_TRY;i++)
     {
         send_uart("AT+CIPMODE=0\r\n");
@@ -270,15 +305,18 @@ static uint8_t log_to_TCP(char *ip, char *port)
         else if(i>MAX_TRY-1)
             return 0;
     }
-
     for(uint8_t i=0;i<MAX_TRY;i++)
     {
         send_uart("AT+CIPMUX=0\r\n");
         if(esp_accept_comand("OK"))
-            i=MAX_TRY;
+        i=MAX_TRY;
         else if(i>MAX_TRY-1)
-            return 0;
+        return 0;
     }
+    */
+    esp_accept_comand("AT+CIPMODE=0\r\n","OK",2);
+    esp_accept_comand("AT+CIPMUX=0\r\n","OK",2);
+
 
     for(uint8_t try=0;try<MAX_TRY;try++)
     {
@@ -302,6 +340,7 @@ static uint8_t log_to_TCP(char *ip, char *port)
     }
 }
 
+/*
 static uint8_t send(char *data,uint16_t *data_size,char *ip, char *port)
 {
     if(!(*data))
@@ -328,6 +367,7 @@ static uint8_t send(char *data,uint16_t *data_size,char *ip, char *port)
 
     return 0;
 }
+*/
 
 /**
  * @brief
