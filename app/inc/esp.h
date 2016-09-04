@@ -10,9 +10,8 @@ typedef struct{
         //uint8_t (*connect_to_wifi)(char *ssid, char *password);
         uint8_t (*test_internet)();
         uint8_t (*test_ap)();
-        uint8_t (*connect_to_TCP)(char *ip, char *port);
         uint8_t (*reset_until_ready)();
-        //uint8_t (*send_data)();
+        uint8_t (*send_to_TCP)(char *message,char *ip, char *port);
         volatile uint8_t *received_data_pack_flag;
 
 }esp_typedef;

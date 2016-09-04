@@ -5,6 +5,10 @@
 
 #include <string.h>
 
+char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9\n\r";
+char ip[]="184.106.153.149";
+char port[]="80";
+
 int main(void)
 {
 	comm_typedef uart;
@@ -49,78 +53,15 @@ int main(void)
 				_delay_ms(2000);
 				PORTD |=(1<<PIN6);
 			}
-		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-		//uart.send("Komenda_czekam_na_odp!");
-
-		if(sprawdz==0)
-		{
-			if(*uart.received_data_pack_flag)
-			{
-				_delay_us(100);
-				for(uint16_t try=0;try<(5*10000);try++)
-				{
-					if(strstr(uart.received,"ready"))
-					{
-						PORTD &=~(1<<PIN6);
-						_delay_ms(2000);
-						PORTD |=(1<<PIN6);
-
-						uart.set_input_buffer_pointer_to_beginning();
-						uart.set_null_to_buff_beginning();
-						*uart.received_data_pack_flag=0;
-						sprawdz=1;
-						//break;
-					}
-				}
+			if(esp.send_to_TCP(message,ip,port)){
+				PORTD &=~(1<<PIN6);
+				_delay_ms(2000);
+				PORTD |=(1<<PIN6);
 			}
 		}
 
-		if(sprawdz)
-		{
-			uart.send("AT\r\n");
-
-			for(uint16_t try=0;try<(5*10000);try++)
-			{
-				_delay_us(100);
-				if(strstr(uart.received,"OK"))
-				{
-					if(*uart.received_data_pack_flag)
-					{
-						PORTD &=~(1<<PIN6);
-						_delay_ms(2000);
-						PORTD |=(1<<PIN6);
-
-						uart.set_input_buffer_pointer_to_beginning();
-						uart.set_null_to_buff_beginning();
-						//*uart.received_data_pack_flag=0;
-						//sprawdz=1;
-						//break;
-					}
-				}
-			}
-		}
-
-
-		_delay_ms(1000);
+		//_delay_ms(1000);
 		//uart.send(uart.received);
-*/
 	}
 }
