@@ -46,18 +46,6 @@ static void reset()
         RESET_OFF;
         RESET_ON;
 }
-/*
-static uint8_t esp_accept_comand(char *ok_string) //nope
-{
-    _delay_ms(DELAY_TIME);
-    p_set_input_buffer_pointer_to_beginning();
-    if(*received_data_pack_flag)
-    {
-        if(strstr(input_buff,ok_string))//OK
-            return 1;
-    }
-    return 0;
-}*/
 
 static uint16_t size_of_string(char *string)
 {
@@ -66,6 +54,7 @@ static uint16_t size_of_string(char *string)
 
     return size;
 }
+
 //fnx-> field number x
 //fvx-> field value x
 static char *data_field(uint8_t *fn1,uint16_t *fv1,
@@ -139,31 +128,6 @@ static uint8_t esp_accept_comand(char *string_to_send,char *ok_string, uint8_t w
     return 0;
 }
 
-
-static uint8_t _esp_accept_comand(char *ok_string) //nope
-{
-    for(uint32_t try_time=0;try_time<(2*10000);try_time++)
-    {
-        _delay_us(100);
-        if(*received_data_pack_flag)
-        {
-            try_time=0;
-            for(;try_time<(2*10000);try_time++)
-            {
-                _delay_us(100);
-
-                if(check_input_buff_and_clear(ok_string))
-                {
-                    return 1;
-                }
-
-                //here and more if's
-            }
-        }
-    }
-    return 0;
-}
-
 //static uint8_t reset_until_ready()
 static uint8_t reset_until_ready()
 {
@@ -206,45 +170,9 @@ static uint8_t reset_until_ready()
 
 static uint8_t ping()
 {
-
     return (esp_accept_comand("AT+PING=\"www.google.pl\"\r\n","OK",13));
-    /*
-    for(uint8_t try=0;try<MAX_TRY;try++)
-    {
-        clear_input_buff();
-        send_uart("AT+PING=\"www.google.pl\"\r\n");
-
-        for(uint32_t try_time=0;try_time<(MAX_TRY_TIME*10000);try_time++)
-        {
-            _delay_us(100);
-            if(*received_data_pack_flag)
-            {
-                try_time=0;
-                for(;try_time<(MAX_TRY_TIME*10000);try_time++)
-                {
-                    _delay_us(100);
-
-                    if(check_input_buff_and_clear("OK"))
-                        return 1;
-
-                    //here and more if's
-                }
-            }
-        }
-
-    }
-    return 0;
-    */
-}
-/*
-static uint8_t ping()
-{
-    send_uart("AT+PING=\"www.google.pl\"\r\n");
-    send_uart(input_buff);
-    return 1;
 }
 
-*/
 static uint8_t check_connection(void)
 {
     for(uint8_t try=0;try<MAX_TRY;try++)
@@ -354,10 +282,10 @@ static uint8_t log_to_TCP(char *ip, char *port)
     return 0;
 }
 
-static uint8_t send_field_to_TCP(char *message,char *ip, char *port)
+static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, char *port)
 {
     uint16_t size=size_of_string(message);
-    //size+=2; //add size of \r\n
+    size+=2; //add size of \r\n
     char size_string[4];
 
     itoa (size, size_string, 10);
@@ -369,6 +297,9 @@ static uint8_t send_field_to_TCP(char *message,char *ip, char *port)
     send_uart(size_string);
     send_uart("\r\n");
     if (!(esp_accept_comand("\0","OK",2)))
+        return 0;
+
+    if (!(esp_accept_comand(message,"SEND OK",13)))
         return 0;
 
     if (!(esp_accept_comand(message,"+IPD,2:",13)))
@@ -408,22 +339,3 @@ static uint8_t send_field_to_TCP(char *message,char *ip, char *port)
         //esp->connect_to_TCP=&log_to_TCP;
         //esp->received_data_pack_flag=received_data_pack_flag;
 }
-
-
-
-//AT command list"
-/*always end by \r\n */
-//char *cwmode1="AT+CWMODE=1\r\n";
-//char *cwjap="AT+CWJAP=\"SSID\",\"pass\"\r\n";
-//char *ping="AT+PING=\"www.google.pl\"\r\n";
-
-//char *cipmode0="AT+CIPMODE=0\r\n";
-//char *cipmux0="AT+CIPMUX=0\r\n";
-
-//char *cipstart="AT+CIPSTART=\"TCP\",\"184.106.153.149\",80\r\n";
-
-//static char *cipsend="AT+CIPSEND=73\r\n";
-
-//static char *get_data="GET https://api.thingspeak.com/channels/143012/feeds.json?results=1&api_key=xxx";
-
-//static char *send_data="GET https://api.thingspeak.com/update?api_key=xxx&field1=0";
