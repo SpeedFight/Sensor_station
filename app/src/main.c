@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9\n\r";
+char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9";
 char ip[]="184.106.153.149";
 char port[]="80";
 
@@ -54,7 +54,7 @@ int main(void)
 				PORTD |=(1<<PIN6);
 			}
 
-			if(esp.send_to_TCP(message,ip,port)){
+			if(esp.send_to_TCP(message,"+IPD,2:",ip,port)){
 				PORTD &=~(1<<PIN6);
 				_delay_ms(2000);
 				PORTD |=(1<<PIN6);

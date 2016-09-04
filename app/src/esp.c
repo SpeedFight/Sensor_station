@@ -226,7 +226,7 @@ static uint8_t check_connection(void)
     }
     return 0;
 }
-
+/*
 static uint8_t log_to_wifi(char *ssid,char *password) //poprawić
 {
         send_uart("AT+CWMODE=1\r\n");
@@ -237,7 +237,7 @@ static uint8_t log_to_wifi(char *ssid,char *password) //poprawić
         //sprawdzenie czy sie udało++
         return 1;
 }
-
+*/
 
 static uint8_t log_to_TCP(char *ip, char *port)
 {
@@ -302,7 +302,7 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
     if (!(esp_accept_comand(message,"SEND OK",13)))
         return 0;
 
-    if (!(esp_accept_comand(message,"+IPD,2:",13)))
+    if (!(esp_accept_comand(message,specific_answer,13)))
         return 0;
 
     return 1;
