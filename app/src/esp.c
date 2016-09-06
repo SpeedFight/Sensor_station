@@ -297,14 +297,14 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
 }
 
 static uint8_t fnct_send_field_to_TCP(void (*other_send_function)(),
-uint16_t *message_length,
+uint16_t message_length,
 char *specific_answer,
 char *ip,
 char *port)
 {
     char size_string[4];
 
-    itoa ((*message_length)+2, size_string, 10);
+    itoa ((message_length+2), size_string, 10);
 
     if (!(log_to_TCP(ip,port)))
         return 0;   //if error
