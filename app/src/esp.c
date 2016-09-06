@@ -316,6 +316,7 @@ char *port)
         return 0;
 
     other_send_function();
+    send_uart("\r\n");
     if (!(esp_accept_comand("\0",specific_answer,13)))
         return 0;
 

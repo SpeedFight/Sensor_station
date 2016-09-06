@@ -29,7 +29,7 @@
 					 //e.g. max quiet time without no new byte in input
 					 //after this time, last char in input array become '\0'
 
-#define BUFFER_SIZE 400u		//input buffer size
+#define BUFFER_SIZE 200u		//input buffer size
 //BUG -> cant receive more than ~910 bytes
 
 

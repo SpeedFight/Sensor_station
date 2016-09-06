@@ -24,10 +24,13 @@ data_field_typedef *p_data2=NULL;
 #endif
 
 #ifdef DATA_FIELD_3
+data_field_typedef *p_data2=NULL;
 data_field_typedef *p_data3=NULL;
 #endif
 
 #ifdef DATA_FIELD_4
+data_field_typedef *p_data2=NULL;
+data_field_typedef *p_data3=NULL;
 data_field_typedef *p_data4=NULL;
 #endif
 
@@ -69,12 +72,27 @@ static uint16_t post_message_length(){
 
     #ifdef DATA_FIELD_3
         length+=size_of_string(thingspeak_field);
+        length+=size_of_string(p_data2->field_no);
+        length+=1; //'='
+        length+=size_of_string(p_data2->field_value);
+
+        length+=size_of_string(thingspeak_field);
         length+=size_of_string(p_data3->field_no);
         length+=1; //'='
         length+=size_of_string(p_data3->field_value);
     #endif
 
     #ifdef DATA_FIELD_4
+        length+=size_of_string(thingspeak_field);
+        length+=size_of_string(p_data2->field_no);
+        length+=1; //'='
+        length+=size_of_string(p_data2->field_value);
+
+        length+=size_of_string(thingspeak_field);
+        length+=size_of_string(p_data3->field_no);
+        length+=1; //'='
+        length+=size_of_string(p_data3->field_value);
+
         length+=size_of_string(thingspeak_field);
         length+=size_of_string(p_data4->field_no);
         length+=1; //'='
@@ -102,6 +120,11 @@ static void send_post(void){
 
     #ifdef DATA_FIELD_3
         uart_send(thingspeak_field);
+        uart_send(p_data2->field_no);
+        uart_send("=");
+        uart_send(p_data2->field_value);
+
+        uart_send(thingspeak_field);
         uart_send(p_data3->field_no);
         uart_send("=");
         uart_send(p_data3->field_value);
@@ -109,27 +132,37 @@ static void send_post(void){
 
     #ifdef DATA_FIELD_4
         uart_send(thingspeak_field);
+        uart_send(p_data2->field_no);
+        uart_send("=");
+        uart_send(p_data2->field_value);
+
+        uart_send(thingspeak_field);
+        uart_send(p_data3->field_no);
+        uart_send("=");
+        uart_send(p_data3->field_value);
+
+        uart_send(thingspeak_field);
         uart_send(p_data4->field_no);
         uart_send("=");
         uart_send(p_data4->field_value);
     #endif
 }
 
-#ifndef DATA_FIELD_2
+#ifdef DATA_FIELD_1
 void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1)
 #endif
 
 
-#ifndef DATA_FIELD_3
+#ifdef DATA_FIELD_2
 void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1,
                                 data_field_typedef *data2)
 #endif
 
-#ifndef DATA_FIELD_4
+#ifdef DATA_FIELD_3
 void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1,
@@ -148,20 +181,24 @@ void thingspeak_init_struct(void (*uart_send_function)(char *),
 {
     uart_send=uart_send_function;
 
+    thingspeak=thingspeak_struct;
     thingspeak_struct->post_message_length=&post_message_length;
     thingspeak_struct->send_post=&send_post;
 
     p_data1=data1;
 
-    #ifndef DATA_FIELD_3
+    #ifdef DATA_FIELD_2
     p_data2=data2;
     #endif
 
-    #ifndef DATA_FIELD_4
+    #ifdef DATA_FIELD_3
+    p_data2=data2;
     p_data3=data3;
     #endif
 
     #ifdef DATA_FIELD_4
+    p_data2=data2;
+    p_data3=data3;
     p_data4=data4;
     #endif
 

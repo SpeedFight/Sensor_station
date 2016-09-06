@@ -26,26 +26,26 @@ typedef struct{
 
  }thingspeak_typedef;
 
- #define DATA_FIELD_2
- #define DATA_FIELD_3
+ //#define DATA_FIELD_2
+ //#define DATA_FIELD_3
  #define DATA_FIELD_4
 
 
- #ifndef DATA_FIELD_2
+ #ifdef DATA_FIELD_1
  void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                  data_field_typedef *data1);
  #endif
 
 
- #ifndef DATA_FIELD_3
+ #ifdef DATA_FIELD_2
  void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                  data_field_typedef *data1,
                                  data_field_typedef *data2);
  #endif
 
- #ifndef DATA_FIELD_4
+ #ifdef DATA_FIELD_3
  void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
                                  data_field_typedef *data1,
