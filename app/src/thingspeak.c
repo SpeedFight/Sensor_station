@@ -47,8 +47,10 @@ static uint8_t (*uart_send)(char *message);
 
 static uint16_t size_of_string(const char *string)
 {
-    uint16_t size;
-    for (size = 0; *(++string); size++);
+    uint16_t size=0;
+    do {
+        size++;
+    } while(*(++string));
 
     return size;
 }

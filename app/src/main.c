@@ -59,8 +59,9 @@ int main(void)
 while(1)
 {
 
+
 	if(esp.fnct_send_to_TCP(thingspeak.send_post,
-							thingspeak.post_message_length,
+							thingspeak.post_message_length(),
 							"OK",ip,port))
 	{
 		PORTD &=~(1<<PIN6);
