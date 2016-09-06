@@ -4,15 +4,17 @@ Korzystanie z komed AT
 
 ## TODO:
 - [x] Wysyłanie/odbiór uart
-- [ ] Komunikacja z ESP8266
-- [ ] Wysyłanie do thingspeak
+- [x] Komunikacja z ESP8266
+- [x] Wysyłanie do thingspeak
+- [ ] odbieranie z thingspeak
+- [ ] thingspeak talkback
 
 ## Dostępne
 - [x] Termometr na ADC
-- [ ] DT11
+- [x] DT11
 - [ ] Ciśnieniomierz
 - [ ] Prędkość wiatru
-- [ ] Panel solarny
+- [ ] Panel solarny ----> NOPE ----> zasilacze 5V
 
 ## Przyszłe
 - [ ] moduł włączający          (thingspeak talkback)
