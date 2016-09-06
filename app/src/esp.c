@@ -55,16 +55,7 @@ static uint16_t size_of_string(char *string)
     return size;
 }
 
-//fnx-> field number x
-//fvx-> field value x
-static char *data_field(uint8_t *fn1,uint16_t *fv1,
-                        uint8_t *fn2,uint16_t *fv2,
-                        uint8_t *fn3,uint16_t *fv3,
-                        uint8_t *fn4,uint16_t *fv4,
-                        uint8_t *fn5,uint16_t *fv5)
-{
-    return '\0';
-}
+
 
 static uint8_t check_input_buff(char *check)
 {
@@ -299,10 +290,33 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
     if (!(esp_accept_comand("\0","OK",2)))
         return 0;
 
-    if (!(esp_accept_comand(message,"SEND OK",13)))
+    if (!(esp_accept_comand(message,specific_answer,13)))
         return 0;
 
-    if (!(esp_accept_comand(message,specific_answer,13)))
+    return 1;
+}
+
+static uint8_t fnct_send_field_to_TCP(void (*other_send_function)(),
+uint16_t *message_length,
+char *specific_answer,
+char *ip,
+char *port)
+{
+    char size_string[4];
+
+    itoa ((*message_length)+2, size_string, 10);
+
+    if (!(log_to_TCP(ip,port)))
+        return 0;   //if error
+
+    send_uart("AT+CIPSEND=");
+    send_uart(size_string);
+    send_uart("\r\n");
+    if (!(esp_accept_comand("\0","OK",2)))
+        return 0;
+
+    other_send_function();
+    if (!(esp_accept_comand("\0",specific_answer,13)))
         return 0;
 
     return 1;
@@ -335,7 +349,6 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
         esp->test_ap=&check_connection;
         esp->reset_until_ready=&reset_until_ready;
         esp->send_to_TCP=&send_field_to_TCP;
+        esp->fnct_send_to_TCP=&fnct_send_field_to_TCP;
         //esp->connect_to_wifi=&log_to_wifi;
-        //esp->connect_to_TCP=&log_to_TCP;
-        //esp->received_data_pack_flag=received_data_pack_flag;
 }

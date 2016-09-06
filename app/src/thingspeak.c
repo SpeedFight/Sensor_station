@@ -12,10 +12,11 @@
 
 thingspeak_typedef *thingspeak;
 
+/*
 #define DATA_FIELD_2
 #define DATA_FIELD_3
 #define DATA_FIELD_4
-
+*/
 data_field_typedef *p_data1=NULL;
 
 #ifdef DATA_FIELD_2
@@ -39,7 +40,7 @@ static const char thingspeak_GET_http[]="GET https://api.thingspeak.com/";
 static const char thingspeak_Update_api_key[]="update?api_key=";
 static const char thingspeak_field[]="&field";
 
-static uint8_t (*uart_send)(const char *message);
+static uint8_t (*uart_send)(char *message);
 
 static uint16_t size_of_string(const char *string)
 {
@@ -115,26 +116,30 @@ static void send_post(void){
 }
 
 #ifndef DATA_FIELD_2
-static void thingspeak_init_struct(void (*uart_send_function)(char *),
+void thingspeak_init_struct(void (*uart_send_function)(char *),
+                                thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1)
 #endif
 
 
 #ifndef DATA_FIELD_3
-static void thingspeak_init_struct(void (*uart_send_function)(char *),
+void thingspeak_init_struct(void (*uart_send_function)(char *),
+                                thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1,
                                 data_field_typedef *data2)
 #endif
 
 #ifndef DATA_FIELD_4
-static void thingspeak_init_struct(void (*uart_send_function)(char *),
+void thingspeak_init_struct(void (*uart_send_function)(char *),
+                                thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1,
                                 data_field_typedef *data2,
                                 data_field_typedef *data3)
 #endif
 
 #ifdef DATA_FIELD_4
-static void thingspeak_init_struct(void (*uart_send_function)(char *),
+void thingspeak_init_struct(void (*uart_send_function)(char *),
+                                thingspeak_typedef *thingspeak_struct,
                                 data_field_typedef *data1,
                                 data_field_typedef *data2,
                                 data_field_typedef *data3,
@@ -142,6 +147,9 @@ static void thingspeak_init_struct(void (*uart_send_function)(char *),
 #endif
 {
     uart_send=uart_send_function;
+
+    thingspeak_struct->post_message_length=&post_message_length;
+    thingspeak_struct->send_post=&send_post;
 
     p_data1=data1;
 

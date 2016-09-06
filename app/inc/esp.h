@@ -1,3 +1,5 @@
+#ifndef _esp_h
+#define _esp_h
 /**
  * @file	esp.h
  * @Author	SpeedFight (speedfight_2@wp.pl)
@@ -12,7 +14,10 @@ typedef struct{
         uint8_t (*test_ap)();
         uint8_t (*reset_until_ready)();
         uint8_t (*send_to_TCP)(char *message,char *specific_answer,char *ip, char *port);
+        uint8_t (*fnct_send_to_TCP)(void (*other_send_function)(),
+                uint16_t *message_length,char *specific_answer,char *ip,char *port);
         volatile uint8_t *received_data_pack_flag;
+
 
 }esp_typedef;
 
@@ -22,3 +27,5 @@ void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send fu
                 char * ptr_input_array, //pointer to input data buffer
                 volatile uint8_t *received_data_flag,
                 esp_typedef *esp);       //pointer to struct
+
+#endif

@@ -105,10 +105,11 @@ static void init_uart(void)
 /**
  * @brief Wysłanie cstringa uartem
  */
-static void send(char *message)
+static void send(const char *in_message)
 {
-	if(*message)//check first element
+	if(*in_message)//check first element
 	{
+		char *message=(char *)in_message;
 		TX_LED_ON;
 		do
 		{

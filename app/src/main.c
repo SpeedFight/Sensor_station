@@ -2,12 +2,15 @@
 #include <util/delay.h>
 #include "../inc/uart.h"
 #include "../inc/esp.h"
+#include "../inc/thingspeak.h"
 
 #include <string.h>
 
-char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9";
-char ip[]="184.106.153.149";
-char port[]="80";
+const char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9";
+const char ip[]="184.106.153.149";
+const char port[]="80";
+const char channel_id[]="143012";
+const char api_key[]="8TPKDQ7OU004TBD5";
 
 int main(void)
 {
@@ -22,6 +25,26 @@ int main(void)
 			uart.received,
 			uart.received_data_pack_flag,
 			&esp);
+
+	thingspeak_typedef thingspeak={
+		.ip=ip,
+		.port=port,
+		.channel_id=channel_id,
+		.api_key=api_key
+	};
+
+	data_field_typedef temperature=	{.field_no="1"};
+	data_field_typedef humidity=	{.field_no="2"};
+	data_field_typedef pressure=	{.field_no="3"};
+	data_field_typedef light=		{.field_no="4"};
+
+	thingspeak_init_struct(uart.send,
+							&thingspeak,
+							&temperature,
+							&humidity,
+							&pressure,
+							&light);
+
 
 	DDRD |=(1<<PIN6);
 	PORTD &=~(1<<PIN6);
@@ -54,7 +77,10 @@ int main(void)
 				PORTD |=(1<<PIN6);
 			}
 
-			if(esp.send_to_TCP(message,"+IPD,2:",ip,port)){
+			//if(esp.send_to_TCP(message,"+IPD,2:",ip,port)){
+			if(esp.fnct_send_to_TCP(thingspeak.send_post,
+									thingspeak.post_message_length,
+									"+IPD,2:",ip,port)){
 				PORTD &=~(1<<PIN6);
 				_delay_ms(2000);
 				PORTD |=(1<<PIN6);
