@@ -5,15 +5,19 @@
 #include <string.h>
 #include <stdlib.h>
 
-//#define NULL '\0';
+/**
+ * @addtogroup thingsepak_def
+ * @{
+ */
 
-thingspeak_typedef *thingspeak;
+//#define NULL '\0';
 
 /*
 #define DATA_FIELD_2
 #define DATA_FIELD_3
 #define DATA_FIELD_4
 */
+
 data_field_typedef *p_data1=NULL;
 
 #ifdef DATA_FIELD_2
@@ -30,13 +34,25 @@ data_field_typedef *p_data2=NULL;
 data_field_typedef *p_data3=NULL;
 data_field_typedef *p_data4=NULL;
 #endif
+/** @}*/
 
+thingspeak_typedef *thingspeak; //pointer to struct contain ip,port etc...
+
+/**
+ * @addtogroup static_string_def
+ * @brief part of message for thingspeak
+ * @{
+ */
 static const char thingspeak_GET_http[]="GET https://api.thingspeak.com/";
 static const char thingspeak_Update_api_key[]="update?api_key=";
 static const char thingspeak_field[]="&field";
 
-static uint8_t (*uart_send)(char *message);
+static uint8_t (*uart_send)(char *message); //pointer to uart send function
+/** @}*/
 
+/**
+ * @brief Return size of string given as argument
+ */
 static uint16_t size_of_string(const char *string)
 {
     uint16_t size=0;
@@ -47,6 +63,9 @@ static uint16_t size_of_string(const char *string)
     return size;
 }
 
+/**
+ * @brief Return size of message
+ */
 static uint16_t post_message_length(){
     uint16_t length;
     length=size_of_string(thingspeak_GET_http);
@@ -96,6 +115,9 @@ static uint16_t post_message_length(){
     return length;
 }
 
+/**
+ * @brief format and send message
+ */
 static void send_post(void){
     uart_send(thingspeak_GET_http);
     uart_send(thingspeak_Update_api_key);
@@ -142,6 +164,10 @@ static void send_post(void){
     #endif
 }
 
+
+/**
+ * @brief Init function
+ */
 #ifdef DATA_FIELD_1
 void thingspeak_init_struct(void (*uart_send_function)(char *),
                                 thingspeak_typedef *thingspeak_struct,
