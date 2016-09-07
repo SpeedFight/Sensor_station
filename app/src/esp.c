@@ -5,28 +5,24 @@
  */
 #include "../inc/esp.h"
 #include <avr/io.h>
-
 #include <util/delay.h>
-
 //#include "stdio.h"
 #include <string.h>
 #include <stdlib.h>
 
-#define DELAY_TIME 750
-#define MAX_TRY 15
-#define MAX_TRY_TIME 13UL //seconds
 
-static void (*send_uart)(char *);    //pointer to send via uart function
+/**
+ * @addtogroup esp_definitions
+ * @{
+ */
 
-static char *input_buff;
-static volatile uint8_t *received_data_pack_flag;
-static void (*p_set_input_buffer_pointer_to_beginning)();
-static void (*p_set_null_to_buff_beginning)();
-
+#define MAX_TRY 5  //how many times resend message
 
 #define PIN_RESET	5
 #define PORT_RESET	D
 
+//DON'T CHANGE CODE BELLOW!!!//
+//merge macros
 #define _RESET_PIN(a)	PIN   ## a
 #define _RESET_PORT(a)	PORT     ## a
 #define _RESET_DDR(a)	DDR	  ## a
@@ -35,10 +31,29 @@ static void (*p_set_null_to_buff_beginning)();
 #define RESET_PORT(a)	_RESET_PORT(a)
 #define RESET_DDR(a) 	_RESET_DDR(a)
 
+//led on/off macros
 #define RESET_OFF	RESET_PORT(PORT_RESET) &= ~(1<<RESET_PIN(PIN_RESET));
 #define RESET_ON	RESET_PORT(PORT_RESET) |= (1<<RESET_PIN(PIN_RESET));
 
+/** @}*/
 
+/**
+ * @addtogroup function_to_uart_definitions
+ * @{
+ */
+static void (*send_uart)(char *);    //pointer to send via uart function
+
+static char *input_buff;    //pointer to received buff
+static volatile uint8_t *received_data_pack_flag; //flag to signalize incoming message
+static void (*p_set_input_buffer_pointer_to_beginning)();
+static void (*p_set_null_to_buff_beginning)();
+/** @}*/
+
+
+
+/**
+ * #brief Short impulse on reset pin, make esp to reset
+ */
 static void reset()
 {
         RESET_ON;
@@ -47,6 +62,9 @@ static void reset()
         RESET_ON;
 }
 
+/**
+ * @brief Return size of string given as argument
+ */
 static uint16_t size_of_string(char *string)
 {
     uint16_t size=0;
@@ -58,7 +76,9 @@ static uint16_t size_of_string(char *string)
 }
 
 
-
+/**
+ * @brief return true if find *check string in input buff
+ */
 static uint8_t check_input_buff(char *check)
 {
     if(strstr(input_buff,check))
@@ -78,6 +98,9 @@ static void clear_input_buff()
     *received_data_pack_flag=0;
 }
 
+/**
+ * @brief return true if find *check string in input buff, and if true, also clear input buff
+ */
 static uint8_t check_input_buff_and_clear(char *check)
 {
     if(strstr(input_buff,check))
@@ -89,6 +112,9 @@ static uint8_t check_input_buff_and_clear(char *check)
         return 0;
 }
 
+/**
+ * @brief send given message by uart, and wait to specific answer
+ */
 static uint8_t esp_accept_comand(char *string_to_send,char *ok_string, uint8_t wait_time)
 {
     for(uint8_t try=0;try<MAX_TRY;try++)
@@ -121,7 +147,36 @@ static uint8_t esp_accept_comand(char *string_to_send,char *ok_string, uint8_t w
     return 0;
 }
 
-//static uint8_t reset_until_ready()
+/**
+ * @brief send given message by uart, and wait to specific answer, if false don't reset
+ */
+static uint8_t esp_accept_comand_one_try(char *string_to_send,char *ok_string, uint8_t wait_time)
+{
+
+        clear_input_buff();
+        send_uart(string_to_send);
+
+        for(uint32_t try_time=0;try_time<((uint32_t)wait_time*10000);try_time++)
+        {
+            _delay_us(100);
+            if(*received_data_pack_flag)
+            {
+                try_time=0;
+                for(;try_time<((uint32_t)wait_time*10000);try_time++)
+                {
+                    _delay_us(100);
+
+                    if(check_input_buff_and_clear(ok_string))
+                        return 1;
+
+                    //here and more if's
+                }
+            }
+        }
+
+    return 0;
+}
+
 static uint8_t reset_until_ready()
 {
     reset();
@@ -158,8 +213,6 @@ static uint8_t reset_until_ready()
     }
     return 0;
 }
-
-
 
 static uint8_t ping()
 {
@@ -275,6 +328,9 @@ static uint8_t log_to_TCP(char *ip, char *port)
     return 0;
 }
 
+/**
+ * @brief send specific message by esp to tcp serwer
+ */
 static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, char *port)
 {
     uint16_t size=size_of_string(message);
@@ -288,8 +344,7 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
 
     send_uart("AT+CIPSEND=");
     send_uart(size_string);
-    send_uart("\r\n");
-    if (!(esp_accept_comand("\0","OK",2)))
+    if (!(esp_accept_comand_one_try("\r\n","OK",2)))
         return 0;
 
     if (!(esp_accept_comand(message,specific_answer,13)))
@@ -298,6 +353,9 @@ static uint8_t send_field_to_TCP(char *message,char *specific_answer,char *ip, c
     return 1;
 }
 
+/**
+ * @brief Send message to TCP serwer, but control about message take specific function
+ */
 static uint8_t fnct_send_field_to_TCP(void (*other_send_function)(),
 uint16_t message_length,
 char *specific_answer,
@@ -326,7 +384,7 @@ char *port)
 }
 
 /**
- * @brief
+ * @brief Init struct
  * @detail
  */
  void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send function

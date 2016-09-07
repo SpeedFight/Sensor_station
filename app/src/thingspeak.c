@@ -1,9 +1,6 @@
 #include "../inc/thingspeak.h"
-
 #include <avr/io.h>
-
 #include <util/delay.h>
-
 //#include "stdio.h"
 #include <string.h>
 #include <stdlib.h>
@@ -34,11 +31,6 @@ data_field_typedef *p_data3=NULL;
 data_field_typedef *p_data4=NULL;
 #endif
 
-/*
-const char thingspeak_filed_send[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9";
-
-const char thingspeak_get_field[]="GET https://api.thingspeak.com/channels/143012/feeds.json?results=1&api_key=8TPKDQ7OU004TBD5";
-*/
 static const char thingspeak_GET_http[]="GET https://api.thingspeak.com/";
 static const char thingspeak_Update_api_key[]="update?api_key=";
 static const char thingspeak_field[]="&field";

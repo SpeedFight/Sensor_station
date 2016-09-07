@@ -1,11 +1,11 @@
+/**
+* @file	thingspeak.h
+* @Author	SpeedFight (speedfight_2@wp.pl)
+* @date	04.09.16
+*/
 #ifndef _thingspeak_h
 #define _thingspeak_h
 
-/**
- * @file	thingspeak.h
- * @Author	SpeedFight (speedfight_2@wp.pl)
- * @date	04.09.16
- */
 
 
  #include <avr/io.h>

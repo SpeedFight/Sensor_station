@@ -20,7 +20,6 @@
  *
  * @var *received
  *      Pointer to array with input cstring (end by \0)
- *      @bug Can receive max no more than ~910 bytes
  *
  * @var *received_data_pack_flag
  *      Pointer to variable signalize end of incoming data transmission
