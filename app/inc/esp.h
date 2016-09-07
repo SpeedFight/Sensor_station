@@ -81,9 +81,10 @@ void esp_init_struct(  void (*uart_send_function)(char *),  //pointer to send fu
          &esp);
 
 
- *  uart.send("hello");
- *
- *
+ *  esp.reset_until_ready();
+ *  esp.test_ap();
+ *  esp.test_internet();
+ *  esp.send_to_TCP(message,"+IPD,2:",ip,port);
  */
 
 #endif
