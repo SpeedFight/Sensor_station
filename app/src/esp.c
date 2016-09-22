@@ -18,22 +18,25 @@
 
 #define MAX_TRY 5  //how many times resend message
 
-#define PIN_RESET	5
-#define PORT_RESET	D
+#define PIN_RESET	1
+#define PORT_RESET	C
+
+#define PIN_CH_PD	0
+#define PORT_CH_PD	C
 
 //DON'T CHANGE CODE BELLOW!!!//
 //merge macros
-#define _RESET_PIN(a)	PIN   ## a
-#define _RESET_PORT(a)	PORT     ## a
-#define _RESET_DDR(a)	DDR	  ## a
+#define _ESP_PIN(a)	    PIN   ## a
+#define _ESP_PORT(a)	PORT     ## a
+#define _ESP_DDR(a)	    DDR	  ## a
 
-#define RESET_PIN(a) 	_RESET_PIN(a)
-#define RESET_PORT(a)	_RESET_PORT(a)
-#define RESET_DDR(a) 	_RESET_DDR(a)
+#define ESP_PIN(a) 	_ESP_PIN(a)
+#define ESP_PORT(a)	_ESP_PORT(a)
+#define ESP_DDR(a) 	_ESP_DDR(a)
 
 //led on/off macros
-#define RESET_OFF	RESET_PORT(PORT_RESET) &= ~(1<<RESET_PIN(PIN_RESET));
-#define RESET_ON	RESET_PORT(PORT_RESET) |= (1<<RESET_PIN(PIN_RESET));
+#define RESET_OFF	ESP_PORT(PORT_RESET) &= ~(1<<ESP_PIN(PIN_RESET));
+#define RESET_ON	ESP_PORT(PORT_RESET) |= (1<<ESP_PIN(PIN_RESET));
 
 /** @}*/
 
@@ -394,7 +397,10 @@ char *port)
                  volatile uint8_t *received_data_flag,
                  esp_typedef *esp)       //pointer to struct
 {
-    RESET_DDR(PORT_RESET) |=(1<<RESET_PIN(PIN_RESET));
+    ESP_DDR(PORT_RESET) |=(1<<ESP_PIN(PIN_RESET));
+    ESP_DDR(PORT_CH_PD) |=(1<<ESP_PIN(PIN_CH_PD));
+
+    ESP_PORT(PORT_CH_PD) |= (1<<ESP_PIN(PIN_CH_PD)); //enable esp
 
         send_uart=uart_send_function;
 

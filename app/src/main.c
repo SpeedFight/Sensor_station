@@ -6,7 +6,6 @@
 
 #include <string.h>
 
-const char message[]="GET https://api.thingspeak.com/update?api_key=8TPKDQ7OU004TBD5&field1=9";
 const char ip[]="184.106.153.149";
 const char port[]="80";
 const char channel_id[]="143012";
