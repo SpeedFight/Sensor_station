@@ -105,7 +105,7 @@ static void init_uart(void)
 /**
  * @brief Wysłanie cstringa uartem
  */
-static void send(const char *in_message)
+static void send(char *in_message)
 {
 	if(*in_message)//check first element
 	{

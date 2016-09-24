@@ -68,15 +68,16 @@ static void reset()
 /**
  * @brief Return size of string given as argument
  */
-static uint16_t size_of_string(char *string)
-{
-    uint16_t size=0;
-    do {
-        size++;
-    } while(*(++string));
+ static uint16_t size_of_string(char *string)
+ {
+     uint16_t size;
+     for(size=0;(*string);string++)
+     {
+         size++;
+     }
 
-    return size;
-}
+     return size;
+ }
 
 
 /**
@@ -365,7 +366,7 @@ char *specific_answer,
 char *ip,
 char *port)
 {
-    char size_string[4];
+    char size_string[4]={'0','0','0','\0'};
 
     itoa ((message_length+2), size_string, 10);
 
@@ -374,8 +375,8 @@ char *port)
 
     send_uart("AT+CIPSEND=");
     send_uart(size_string);
-    send_uart("\r\n");
-    if (!(esp_accept_comand("\0","OK",2)))
+    //send_uart("\r\n");
+    if (!(esp_accept_comand("\r\n","OK",2)))
         return 0;
 
     other_send_function();

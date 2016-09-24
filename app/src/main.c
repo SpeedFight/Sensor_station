@@ -44,30 +44,12 @@ int main(void)
 							&pressure,
 							&light);
 
-
-	DDRD |=(1<<PIN6);
-	PORTD &=~(1<<PIN6);
-	_delay_ms(100);
-	PORTD |=(1<<PIN6);
-
 	//przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 	temperature.field_value="1";
 	humidity.field_value="2";
 	pressure.field_value="3";
 	light.field_value="4";
-while(1)
-{
 
-
-	if(esp.fnct_send_to_TCP(thingspeak.send_post,
-							thingspeak.post_message_length(),
-							"OK",ip,port))
-	{
-		PORTD &=~(1<<PIN6);
-		_delay_ms(2000);
-		PORTD |=(1<<PIN6);
-	}
-}
 
 	while(1)
 	{
@@ -93,17 +75,13 @@ while(1)
 				PORTD |=(1<<PIN6);
 			}
 
-			//if(esp.send_to_TCP(message,"+IPD,2:",ip,port)){
 			if(esp.fnct_send_to_TCP(thingspeak.send_post,
-									thingspeak.post_message_length,
+									thingspeak.post_message_length(),
 									"+IPD,2:",ip,port)){
 				PORTD &=~(1<<PIN6);
 				_delay_ms(2000);
 				PORTD |=(1<<PIN6);
 			}
-		}
 
-		//_delay_ms(1000);
-		//uart.send(uart.received);
 	}
 }

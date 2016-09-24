@@ -55,10 +55,11 @@ static uint8_t (*uart_send)(char *message); //pointer to uart send function
  */
 static uint16_t size_of_string(const char *string)
 {
-    uint16_t size=0;
-    do {
+    uint16_t size;
+    for(size=0;(*string);string++)
+    {
         size++;
-    } while(*(++string));
+    }
 
     return size;
 }
