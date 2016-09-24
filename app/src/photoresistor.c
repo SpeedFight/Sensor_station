@@ -55,6 +55,7 @@ ISR(ADC_vect)
     adc_tmp = ADCL;
     adc_tmp |=ADCH<<8;
 
+    //average measures
     if(!no_brightness)
         no_brightness = ((adc_tmp - ADC_LOW)*100/651u);
     else
@@ -64,6 +65,8 @@ ISR(ADC_vect)
 
 void photoresistor_init_struct(photoresistor_typedef *photoresistor)
 {
-    //photoresistor->no_brightness=&no_brightness;
     photoresistor->init=&init;
+    photoresistor->reset_average=&reset_average;
+    photoresistor->start_measure=&start_measure;
+    photoresistor->get_brightness=&get_string_brightness;
 }

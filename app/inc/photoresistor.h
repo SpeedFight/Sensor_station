@@ -12,7 +12,10 @@
 typedef struct
 {
     void (*init)();
-    uint8_t *brightness;
+    void (*reset_average)();
+    void (*start_measure)();
+    char *(*get_brightness)();
+
 }photoresistor_typedef;
 
 void photoresistor_init_struct(photoresistor_typedef *photoresistor);
