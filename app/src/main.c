@@ -20,7 +20,8 @@ int main(void)
 
 	photoresistor_typedef photoresistor;
 	photoresistor_init_struct(&photoresistor);
-	
+	photoresistor.init();
+
 
 	esp_typedef esp;
 	esp_init_struct(uart.send,
