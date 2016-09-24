@@ -3,6 +3,7 @@
 #include "../inc/uart.h"
 #include "../inc/esp.h"
 #include "../inc/thingspeak.h"
+#include "../inc/photoresistor.h"
 
 #include <string.h>
 
@@ -16,6 +17,10 @@ int main(void)
 	comm_typedef uart;
 	uart_init_struct(&uart);
 	uart.init();
+
+	photoresistor_typedef photoresistor;
+	photoresistor_init_struct(&photoresistor);
+	
 
 	esp_typedef esp;
 	esp_init_struct(uart.send,
@@ -83,5 +88,6 @@ int main(void)
 				PORTD |=(1<<PIN6);
 			}
 
+		}
 	}
 }
