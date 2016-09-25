@@ -85,13 +85,18 @@ uint8_t wait_minutes(uint8_t minutes)
 uint8_t wait_hours(uint8_t hours)
 {
     static uint8_t actual_hour;
+    static uint8_t actual_minutes;
     static uint8_t wait;
     static uint8_t flag;
+
 
     if(!(flag))
     {
         flag=1;
         actual_hour=time.hours;
+        if(!(wait))
+            actual_minutes=time.minutes;
+
     }
 
     if(!(actual_hour==time.hours))
@@ -100,7 +105,7 @@ uint8_t wait_hours(uint8_t hours)
         wait++;
     }
 
-    if(wait>=hours)
+    if(wait>=hours || actual_minutes>=time.minutes)
     {
         flag=0;
         wait=0;
@@ -155,20 +160,15 @@ uint8_t main_activity()
 /////debug
 	int8_t tmp_temp, tmp_hum;
 
-    photoresistor.start_measure();
-    dht_gettemperaturehumidity(&tmp_temp,&tmp_hum);
-    no_temperature=(no_temperature+tmp_temp)/2u;
-    no_humidity=(no_humidity+tmp_hum)/2u;
-
-    itoa (no_temperature, str_temperature, 10);
-    itoa (no_humidity, str_humidity, 10);
-	light.field_value=photoresistor.get_brightness();
-	photoresistor.reset_average();
-
     while(1)
     {
         if(wait_minutes(1))
         {
+            photoresistor.start_measure();
+            dht_gettemperaturehumidity(&tmp_temp,&tmp_hum);
+            no_temperature=(no_temperature+tmp_temp)/2u;
+            no_humidity=(no_humidity+tmp_hum)/2u;
+/*
             uart.send("bright: ");
             uart.send(light.field_value);
             uart.send(" temp: ");
@@ -176,40 +176,43 @@ uint8_t main_activity()
             uart.send(" hum: ");
             uart.send(humidity.field_value);
             uart.send("%\n\r");
+            */
+        }
+
+        if(wait_hours(1))
+        {
+            itoa (no_temperature, str_temperature, 10);
+            itoa (no_humidity, str_humidity, 10);
+            light.field_value=photoresistor.get_brightness();
+            photoresistor.reset_average();
+
+            esp.esp_on();
+            while (!(esp.reset_until_ready()))
+            {
+
+            }
+
+            if(esp.test_ap())
+            {
+
+            }
+
+            if(esp.test_internet())
+            {
+
+            }
+
+            if(esp.fnct_send_to_TCP(thingspeak.send_post,
+                thingspeak.post_message_length(),
+                "+IPD,2:",ip,port))
+                {
+
+                }
+
+            esp.esp_off();
+
         }
     }
-
-
-	while(1)
-	{
-
-		while (!(esp.reset_until_ready()))
-        {
-
-		}
-
-		while(1)
-		{
-
-			if(esp.test_ap())
-            {
-
-			}
-
-			if(esp.test_internet())
-            {
-
-			}
-
-			if(esp.fnct_send_to_TCP(thingspeak.send_post,
-									thingspeak.post_message_length(),
-									"+IPD,2:",ip,port))
-            {
-
-			}
-
-		}
-	}
 }
 
 ISR (TIMER1_COMPA_vect)

@@ -387,6 +387,16 @@ char *port)
     return 1;
 }
 
+void esp_on()
+{
+    ESP_PORT(PORT_CH_PD) |= (1<<ESP_PIN(PIN_CH_PD)); //enable esp
+}
+
+void esp_off()
+{
+    ESP_PORT(PORT_CH_PD) &= !(1<<ESP_PIN(PIN_CH_PD)); //enable esp
+}
+
 /**
  * @brief Init struct
  * @detail
@@ -400,8 +410,6 @@ char *port)
 {
     ESP_DDR(PORT_RESET) |=(1<<ESP_PIN(PIN_RESET));
     ESP_DDR(PORT_CH_PD) |=(1<<ESP_PIN(PIN_CH_PD));
-
-    ESP_PORT(PORT_CH_PD) |= (1<<ESP_PIN(PIN_CH_PD)); //enable esp
 
         send_uart=uart_send_function;
 
@@ -418,5 +426,7 @@ char *port)
         esp->reset_until_ready=&reset_until_ready;
         esp->send_to_TCP=&send_field_to_TCP;
         esp->fnct_send_to_TCP=&fnct_send_field_to_TCP;
-        //esp->connect_to_wifi=&log_to_wifi;
+
+        esp->esp_on=&esp_on;
+        esp->esp_off=&esp_off;
 }
