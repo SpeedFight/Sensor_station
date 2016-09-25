@@ -27,7 +27,7 @@ const char api_key[]="8TPKDQ7OU004TBD5";
 static char str_temperature[4];
 static char str_humidity[4];
 
-int8_t temp, hum;
+int8_t no_temperature, no_humidity;
 
 typedef struct
 {
@@ -80,6 +80,62 @@ ISR (TIMER1_COMPA_vect)
     }
 }
 
+uint8_t wait_minutes(uint8_t minutes)
+{
+    static uint8_t actual_minutes;
+    static uint8_t wait;
+    static uint8_t flag;
+
+    if(!(flag))
+    {
+        flag=1;
+        actual_minutes=time.minutes;
+    }
+
+    if(!(actual_minutes==time.minutes))
+    {
+        flag=0;
+        wait++;
+    }
+
+    if(wait>=minutes)
+    {
+        flag=0;
+        wait=0;
+        return 1;
+    }
+
+    return 0;
+}
+
+uint8_t wait_hours(uint8_t hours)
+{
+    static uint8_t actual_hour;
+    static uint8_t wait;
+    static uint8_t flag;
+
+    if(!(flag))
+    {
+        flag=1;
+        actual_hour=time.hours;
+    }
+
+    if(!(actual_hour==time.hours))
+    {
+        flag=0;
+        wait++;
+    }
+
+    if(wait>=hours)
+    {
+        flag=0;
+        wait=0;
+        return 1;
+    }
+
+    return 0;
+}
+
 uint8_t main_activity()
 {
     //init uart
@@ -123,10 +179,8 @@ uint8_t main_activity()
     start_timer();
 
 /////debug
-	int8_t temp, hum;
+	int8_t tmp_temp, tmp_hum;
 
-while(1)
-{
 	uart.send("bright: ");
 	uart.send(light.field_value);
 	uart.send(" temp: ");
@@ -135,55 +189,47 @@ while(1)
 	uart.send(humidity.field_value);
 	uart.send("%\n\r");
 
-	dht_gettemperaturehumidity(&temp,&hum);
-	itoa (temp, str_temperature, 10);
-	itoa (hum, str_humidity, 10);
+    photoresistor.start_measure();
+    dht_gettemperaturehumidity(&tmp_temp,&tmp_hum);
+    no_temperature=(no_temperature+tmp_temp)/2u;
+    no_humidity=(no_humidity+tmp_hum)/2u;
 
-	for(uint8_t i=0; i<20;i++)
-	{
-		photoresistor.start_measure();
-		_delay_ms(100);
-	}
-
+    itoa (no_temperature, str_temperature, 10);
+    itoa (no_humidity, str_humidity, 10);
 	light.field_value=photoresistor.get_brightness();
 	photoresistor.reset_average();
 
-}
 
-/*
+
+
 	while(1)
 	{
 
-		while (!(esp.reset_until_ready())){
-			PORTD &=~(1<<PIN6);
-			_delay_ms(1500);
+		while (!(esp.reset_until_ready()))
+        {
+
 		}
-		PORTD |=(1<<PIN6);
-		_delay_ms(1500);
+
 		while(1)
 		{
 
-			if(esp.test_ap()){
-				PORTD &=~(1<<PIN6);
-				_delay_ms(2000);
-				PORTD |=(1<<PIN6);
+			if(esp.test_ap())
+            {
+
 			}
 
-			if(esp.test_internet()){
-				PORTD &=~(1<<PIN6);
-				_delay_ms(2000);
-				PORTD |=(1<<PIN6);
+			if(esp.test_internet())
+            {
+
 			}
 
 			if(esp.fnct_send_to_TCP(thingspeak.send_post,
 									thingspeak.post_message_length(),
-									"+IPD,2:",ip,port)){
-				PORTD &=~(1<<PIN6);
-				_delay_ms(2000);
-				PORTD |=(1<<PIN6);
+									"+IPD,2:",ip,port))
+            {
+
 			}
 
 		}
 	}
-	*/
 }
