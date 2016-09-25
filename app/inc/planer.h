@@ -9,5 +9,6 @@
 
 #include <avr/io.h>
 
+uint8_t main_activity();
 
 #endif

@@ -29,52 +29,98 @@ static char str_humidity[4];
 
 int8_t temp, hum;
 
+typedef struct
+{
+    uint8_t seconds;
+    uint8_t minutes;
+    uint8_t hours;
+    uint8_t days;
+}time_typedef;
+
+time_typedef time;
+
+
+#define COMPARE_NUMBER (62500u-1u)
+void start_timer()
+{
+    TCCR1B |= (1<<WGM12); //CTC mode for 16bit timer A
+    TCCR1B |= (1<<CS11) | (1<<CS10); //prescaler to 64
+
+    OCR1AL |= COMPARE_NUMBER;
+    OCR1AH |= (COMPARE_NUMBER >>8);
+
+    TIFR |= (1<<OCF1A); //enable IRQ
+}
+
+void timer()
+{
+
+}
+
+ISR (TIMER1_COMPA_vect)
+{
+    time.seconds++;
+
+    if(time.seconds>59u)
+    {
+        time.seconds=0;
+        time.minutes++;
+    }
+
+    if(time.minutes>59u)
+    {
+        time.minutes=0;
+        time.hours++;
+    }
+
+    if(time.hours>23u)
+    {
+        time.hours=0;
+        time.days++;
+    }
+}
+
 uint8_t main_activity()
 {
     //init uart
     comm_typedef uart;
-	uart_init_struct(&uart);
-	uart.init();
+    uart_init_struct(&uart);
+    uart.init();
 
     //init photoresistor
-	photoresistor_typedef photoresistor;
-	photoresistor_init_struct(&photoresistor);
-	photoresistor.init();
+    photoresistor_typedef photoresistor;
+    photoresistor_init_struct(&photoresistor);
+    photoresistor.init();
 
     //init esp
-	esp_typedef esp;
-	esp_init_struct(uart.send,
-			uart.set_input_buffer_pointer_to_beginning,
-			uart.set_null_to_buff_beginning,
-			uart.received,
-			uart.received_data_pack_flag,
-			&esp);
+    esp_typedef esp;
+    esp_init_struct(uart.send,
+            uart.set_input_buffer_pointer_to_beginning,
+            uart.set_null_to_buff_beginning,
+            uart.received,
+            uart.received_data_pack_flag,
+            &esp);
 
-	thingspeak_typedef thingspeak={
-		.ip=ip,
-		.port=port,
-		.channel_id=channel_id,
-		.api_key=api_key
-	};
+    thingspeak_typedef thingspeak={
+        .ip=ip,
+        .port=port,
+        .channel_id=channel_id,
+        .api_key=api_key
+    };
 
+    data_field_typedef temperature=	{.field_no=str_temperature};
+    data_field_typedef humidity=	{.field_no=str_humidity};
+    data_field_typedef light; //=	{.field_no="0"};
 
+    thingspeak_init_struct(uart.send,
+                            &thingspeak,
+                            &temperature,
+                            &humidity,
+                            &light);
 
+    //przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 
-	data_field_typedef temperature=	{.field_no=str_temperature};
-	data_field_typedef humidity=	{.field_no=str_humidity};
-	data_field_typedef light=	{.field_no="3"};
-
-	thingspeak_init_struct(uart.send,
-							&thingspeak,
-							&temperature,
-							&humidity,
-							&light);
-
-	//przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
-	temperature.field_value="1";
-	humidity.field_value="2";
-	light.field_value="3";
-
+    start_timer();
 
 /////debug
 	int8_t temp, hum;
