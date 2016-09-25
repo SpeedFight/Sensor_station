@@ -1,3 +1,4 @@
+/*
 #include <avr/io.h>
 #include <util/delay.h>
 #include "../inc/uart.h"
@@ -13,9 +14,18 @@ const char ip[]="184.106.153.149";
 const char port[]="80";
 const char channel_id[]="143012";
 const char api_key[]="8TPKDQ7OU004TBD5";
+*/
+
+#include "../inc/planer.h"
 
 int main(void)
 {
+	while(1)
+	{
+		
+	}
+
+	/*
 	comm_typedef uart;
 	uart_init_struct(&uart);
 	uart.init();
@@ -92,7 +102,7 @@ while(1){
 	photoresistor.reset_average();
 
 }
-
+*/
 /*
 	while(1)
 	{

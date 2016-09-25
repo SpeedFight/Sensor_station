@@ -67,8 +67,8 @@ typedef struct{
  *          .
  */
  //#define DATA_FIELD_2
- //#define DATA_FIELD_3
- #define DATA_FIELD_4
+ #define DATA_FIELD_3
+ //#define DATA_FIELD_4
 
 
  #ifdef DATA_FIELD_1
