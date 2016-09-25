@@ -4,8 +4,10 @@
 #include "../inc/esp.h"
 #include "../inc/thingspeak.h"
 #include "../inc/photoresistor.h"
+#include "../inc/dht.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 const char ip[]="184.106.153.149";
 const char port[]="80";
@@ -57,6 +59,41 @@ int main(void)
 	light.field_value="4";
 
 
+/////debug
+	static char str_temperature[4];
+	static char str_humidity[4];
+
+	uint8_t temp, hum;
+
+	temperature.field_value=str_temperature;
+	humidity.field_value=str_humidity;
+
+while(1){
+	uart.send("bright: ");
+	uart.send(light.field_value);
+	uart.send(" temp: ");
+	uart.send(temperature.field_value);
+	uart.send(" hum: ");
+	uart.send(humidity.field_value);
+	uart.send("%\n\r");
+
+	dht_gettemperaturehumidity(&temp,&hum);
+
+	itoa (temp, str_temperature, 10);
+	itoa (hum, str_humidity, 10);
+
+	for(uint8_t i=0; i<20;i++)
+	{
+		photoresistor.start_measure();
+		_delay_ms(100);
+	}
+
+	light.field_value=photoresistor.get_brightness();
+	photoresistor.reset_average();
+
+}
+
+/*
 	while(1)
 	{
 
@@ -91,4 +128,5 @@ int main(void)
 
 		}
 	}
+	*/
 }
