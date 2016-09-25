@@ -37,7 +37,7 @@ typedef struct
     uint8_t days;
 }time_typedef;
 
-time_typedef time;
+volatile time_typedef time;
 
 
 #define COMPARE_NUMBER (62500u-1u)
@@ -46,39 +46,13 @@ void start_timer()
     TCCR1B |= (1<<WGM12); //CTC mode for 16bit timer A
     TCCR1B |= (1<<CS11) | (1<<CS10); //prescaler to 64
 
-    OCR1AL |= COMPARE_NUMBER;
-    OCR1AH |= (COMPARE_NUMBER >>8);
+    //OCR1AL |= COMPARE_NUMBER;
+    //OCR1AH |= (COMPARE_NUMBER >>8);
+    OCR1A = COMPARE_NUMBER;
 
-    TIFR |= (1<<OCF1A); //enable IRQ
+    TIMSK |= (1<<OCIE1A); //enable IRQ
 }
 
-void timer()
-{
-
-}
-
-ISR (TIMER1_COMPA_vect)
-{
-    time.seconds++;
-
-    if(time.seconds>59u)
-    {
-        time.seconds=0;
-        time.minutes++;
-    }
-
-    if(time.minutes>59u)
-    {
-        time.minutes=0;
-        time.hours++;
-    }
-
-    if(time.hours>23u)
-    {
-        time.hours=0;
-        time.days++;
-    }
-}
 
 uint8_t wait_minutes(uint8_t minutes)
 {
@@ -181,14 +155,6 @@ uint8_t main_activity()
 /////debug
 	int8_t tmp_temp, tmp_hum;
 
-	uart.send("bright: ");
-	uart.send(light.field_value);
-	uart.send(" temp: ");
-	uart.send(temperature.field_value);
-	uart.send(" hum: ");
-	uart.send(humidity.field_value);
-	uart.send("%\n\r");
-
     photoresistor.start_measure();
     dht_gettemperaturehumidity(&tmp_temp,&tmp_hum);
     no_temperature=(no_temperature+tmp_temp)/2u;
@@ -199,7 +165,19 @@ uint8_t main_activity()
 	light.field_value=photoresistor.get_brightness();
 	photoresistor.reset_average();
 
-
+    while(1)
+    {
+        if(wait_minutes(1))
+        {
+            uart.send("bright: ");
+            uart.send(light.field_value);
+            uart.send(" temp: ");
+            uart.send(temperature.field_value);
+            uart.send(" hum: ");
+            uart.send(humidity.field_value);
+            uart.send("%\n\r");
+        }
+    }
 
 
 	while(1)
@@ -232,4 +210,27 @@ uint8_t main_activity()
 
 		}
 	}
+}
+
+ISR (TIMER1_COMPA_vect)
+{
+    time.seconds++;
+
+    if(time.seconds>59u)
+    {
+        time.seconds=0;
+        time.minutes++;
+    }
+
+    if(time.minutes>59u)
+    {
+        time.minutes=0;
+        time.hours++;
+    }
+
+    if(time.hours>23u)
+    {
+        time.hours=0;
+        time.days++;
+    }
 }
