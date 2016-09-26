@@ -28,6 +28,7 @@ static char str_temperature[4];
 static char str_humidity[4];
 
 int8_t no_temperature, no_humidity;
+int8_t tmp_temp, tmp_hum;
 
 typedef struct
 {
@@ -41,6 +42,7 @@ volatile time_typedef time;
 
 
 #define COMPARE_NUMBER (62500u-1u)
+//#define COMPARE_NUMBER (12250u-1u)
 void start_timer()
 {
     TCCR1B |= (1<<WGM12); //CTC mode for 16bit timer A
@@ -105,7 +107,7 @@ uint8_t wait_hours(uint8_t hours)
         wait++;
     }
 
-    if(wait>=hours || actual_minutes>=time.minutes)
+    if(wait>=hours && actual_minutes>=time.minutes)
     {
         flag=0;
         wait=0;
@@ -143,9 +145,12 @@ uint8_t main_activity()
         .api_key=api_key
     };
 
-    data_field_typedef temperature=	{.field_no=str_temperature};
-    data_field_typedef humidity=	{.field_no=str_humidity};
-    data_field_typedef light; //=	{.field_no="0"};
+    data_field_typedef temperature=	{.field_no="1"};
+    data_field_typedef humidity=	{.field_no="2"};
+    data_field_typedef light=   	{.field_no="3"};
+
+    temperature.field_value=str_temperature;
+    humidity.field_value=str_humidity;
 
     thingspeak_init_struct(uart.send,
                             &thingspeak,
@@ -158,58 +163,114 @@ uint8_t main_activity()
     start_timer();
 
 /////debug
-	int8_t tmp_temp, tmp_hum;
+
+    char sec[3],min[3],hou[3];
+    char tmppp[4];
+
+    uint8_t ile=0;
 
     while(1)
     {
-        if(wait_minutes(1))
+
+        _delay_ms(1000);
+        //if(wait_minutes(1))
         {
             photoresistor.start_measure();
             dht_gettemperaturehumidity(&tmp_temp,&tmp_hum);
-            no_temperature=(no_temperature+tmp_temp)/2u;
-            no_humidity=(no_humidity+tmp_hum)/2u;
-/*
-            uart.send("bright: ");
-            uart.send(light.field_value);
-            uart.send(" temp: ");
-            uart.send(temperature.field_value);
-            uart.send(" hum: ");
-            uart.send(humidity.field_value);
-            uart.send("%\n\r");
-            */
-        }
 
-        if(wait_hours(1))
-        {
+            if(!(no_temperature))
+            {
+                no_temperature=tmp_temp;
+                no_humidity=tmp_hum;
+            }
+            else
+            {
+                no_temperature=(no_temperature+tmp_temp)/2u;
+                no_humidity=(no_humidity+tmp_hum)/2u;
+            }
+            uart.send("minute++\n\r");
+            ile++;
+
+/*
             itoa (no_temperature, str_temperature, 10);
             itoa (no_humidity, str_humidity, 10);
             light.field_value=photoresistor.get_brightness();
             photoresistor.reset_average();
+            no_humidity=0;
+            no_temperature=0;
 
+
+            itoa (time.seconds, sec, 10);
+            itoa (time.minutes, min, 10);
+            itoa (time.hours, hou, 10);
+
+            uart.send("bright:");
+            uart.send(light.field_value);
+            uart.send(" temp:");
+            uart.send(temperature.field_value);
+            uart.send("*C hum:");
+            uart.send(humidity.field_value);
+            uart.send("%");
+
+            uart.send(" Time:");
+            uart.send(hou);
+            uart.send(":");
+            uart.send(min);
+            uart.send(":");
+            uart.send(sec);
+            uart.send(":");
+            uart.send("\n\r");
+            itoa (thingspeak.post_message_length(), tmppp, 10);
+            uart.send("size");
+            uart.send(tmppp);
+            thingspeak.send_post();
+            uart.send("\n\r");
+*/
+        }
+
+        //if(wait_hours(1))
+        if(ile>9)
+        {
+            ile=0;
+            itoa (no_temperature, str_temperature, 10);
+            itoa (no_humidity, str_humidity, 10);
+            light.field_value=photoresistor.get_brightness();
+            photoresistor.reset_average();
+            no_humidity=0;
+            no_temperature=0;
+
+            *uart.received_data_pack_flag=0;
+            uart.send("esp start\n\r");
             esp.esp_on();
             while (!(esp.reset_until_ready()))
             {
 
             }
+            *uart.received_data_pack_flag=0;
 
             if(esp.test_ap())
             {
 
             }
+            *uart.received_data_pack_flag=0;
 
+            _delay_ms(1000);
             if(esp.test_internet())
             {
 
             }
+            *uart.received_data_pack_flag=0;
 
             if(esp.fnct_send_to_TCP(thingspeak.send_post,
                 thingspeak.post_message_length(),
-                "+IPD,2:",ip,port))
+                "+IPD,3:",ip,port))
                 {
 
                 }
 
+
             esp.esp_off();
+            uart.send("esp end\n\r");
 
         }
     }
