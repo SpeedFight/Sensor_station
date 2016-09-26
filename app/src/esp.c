@@ -196,7 +196,7 @@ static uint8_t reset_until_ready()
 
                 if(check_input_buff("ready"))
                 {
-                    //return 1;
+                    return 1; //////////////////////////////////////
                     for(;try_time<(5UL*10000);try_time++)
                     {
                         _delay_us(100);

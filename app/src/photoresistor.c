@@ -57,9 +57,9 @@ ISR(ADC_vect)
 
     //average measures
     if(!no_brightness)
-        no_brightness = ((adc_tmp - ADC_LOW)*100/651u);
+        no_brightness = ((adc_tmp - ADC_LOW)*100/ADC_MAX);
     else
-        no_brightness = ((uint16_t)no_brightness +((adc_tmp - ADC_LOW)*100/651u))/2;
+        no_brightness = ((uint16_t)no_brightness +((adc_tmp - ADC_LOW)*100/ADC_MAX))/2;
 
 }
 

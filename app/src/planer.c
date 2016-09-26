@@ -7,6 +7,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 #include "../inc/uart.h"
 #include "../inc/esp.h"
 #include "../inc/thingspeak.h"
@@ -168,9 +169,11 @@ uint8_t main_activity()
     char tmppp[4];
 
     uint8_t ile=0;
+    wdt_enable(WDTO_2S);
 
     while(1)
     {
+        wdt_reset();
 
         _delay_ms(1000);
         //if(wait_minutes(1))
@@ -190,6 +193,7 @@ uint8_t main_activity()
             }
             uart.send("minute++\n\r");
             ile++;
+            wdt_reset();
 
 /*
             itoa (no_temperature, str_temperature, 10);
@@ -229,7 +233,7 @@ uint8_t main_activity()
         }
 
         //if(wait_hours(1))
-        if(ile>9)
+        if(ile>239u)//co 4min
         {
             ile=0;
             itoa (no_temperature, str_temperature, 10);
@@ -242,10 +246,14 @@ uint8_t main_activity()
             *uart.received_data_pack_flag=0;
             uart.send("esp start\n\r");
             esp.esp_on();
-            while (!(esp.reset_until_ready()))
+
+            wdt_reset();
+            if((esp.reset_until_ready()))
             {
 
             }
+            wdt_reset();
+            wdt_disable();
             *uart.received_data_pack_flag=0;
 
             if(esp.test_ap())
@@ -261,9 +269,10 @@ uint8_t main_activity()
             }
             *uart.received_data_pack_flag=0;
 
+            wdt_enable(WDTO_2S);
             if(esp.fnct_send_to_TCP(thingspeak.send_post,
                 thingspeak.post_message_length(),
-                "+IPD,3:",ip,port))
+                "+IPD,",ip,port))
                 {
 
                 }
