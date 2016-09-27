@@ -18,10 +18,29 @@
 #include <string.h>
 #include <stdlib.h>
 
+//#define CZUJNIK1
+#define CZUJNIK2
+//#define CZUJNIK3
+
 const char ip[]="184.106.153.149";
 const char port[]="80";
+
+#ifdef CZUJNIK1
 const char channel_id[]="143012";
 const char api_key[]="8TPKDQ7OU004TBD5";
+#endif
+
+#ifdef CZUJNIK2
+const char channel_id[]="164416";
+const char api_key[]="TFLHHS8DBO3NRWRH";
+#endif
+
+#ifdef CZUJNIK3
+const char channel_id[]="164417";
+const char api_key[]="DKQUPX8IRUS6SHQJ";
+#endif
+
+
 
 
 ///
@@ -146,9 +165,23 @@ uint8_t main_activity()
         .api_key=api_key
     };
 
+    #ifdef CZUJNIK1
     data_field_typedef temperature=	{.field_no="1"};
     data_field_typedef humidity=	{.field_no="2"};
     data_field_typedef light=   	{.field_no="3"};
+    #endif
+
+    #ifdef CZUJNIK2
+    data_field_typedef temperature=	{.field_no="1"};
+    data_field_typedef humidity=	{.field_no="2"};
+    data_field_typedef light=   	{.field_no="3"};
+    #endif
+
+    #ifdef CZUJNIK3
+    data_field_typedef temperature=	{.field_no="1"};
+    data_field_typedef humidity=	{.field_no="2"};
+    data_field_typedef light=   	{.field_no="3"};
+    #endif
 
     temperature.field_value=str_temperature;
     humidity.field_value=str_humidity;
