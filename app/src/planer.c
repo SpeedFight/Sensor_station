@@ -18,8 +18,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-//#define CZUJNIK1
-#define CZUJNIK2
+#define CZUJNIK1
+//#define CZUJNIK2
 //#define CZUJNIK3
 
 const char ip[]="184.106.153.149";
@@ -194,21 +194,24 @@ uint8_t main_activity()
 
     //przed wysłaniem zawsze wyczyść *uart.received_data_pack_flag=0;
 
-    start_timer();
+    //start_timer();
 
 /////debug
 
-    char sec[3],min[3],hou[3];
-    char tmppp[4];
+    //char sec[3],min[3],hou[3];
+    //char tmppp[4];
 
     uint8_t ile=0;
     wdt_enable(WDTO_2S);
 
     while(1)
     {
-        wdt_reset();
 
-        _delay_ms(1000);
+        for(uint8_t i=0;i<4;i++)
+        {
+            wdt_reset();
+            _delay_ms(400);
+        }
         //if(wait_minutes(1))
         {
             photoresistor.start_measure();
@@ -266,7 +269,7 @@ uint8_t main_activity()
         }
 
         //if(wait_hours(1))
-        if(ile>239u)//co 4min
+        if(ile>149u)//co 5min
         {
             ile=0;
             itoa (no_temperature, str_temperature, 10);

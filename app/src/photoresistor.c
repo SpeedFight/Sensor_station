@@ -16,9 +16,9 @@ volatile uint8_t no_brightness;
 
 //lowest voltage on voltage divider (photoresistor) ~1.2V
 //((1.2*1023)/3.3)=372
-#define ADC_LOW  372u
+//#define ADC_LOW  372u
 
-#define ADC_MAX (1023u-372u)
+#define ADC_MAX 1023u
 
 static void init()
 {
@@ -55,11 +55,14 @@ ISR(ADC_vect)
     adc_tmp = ADCL;
     adc_tmp |=ADCH<<8;
 
+    if(!(adc_tmp))
+        adc_tmp=1; //no 0 allowed
+
     //average measures
     if(!no_brightness)
-        no_brightness = ((adc_tmp - ADC_LOW)*100/ADC_MAX);
+        no_brightness = (adc_tmp*100/ADC_MAX);
     else
-        no_brightness = ((uint16_t)no_brightness +((adc_tmp - ADC_LOW)*100/ADC_MAX))/2;
+        no_brightness = ((uint16_t)no_brightness +(adc_tmp*100/ADC_MAX))/2;
 
 }
 
