@@ -6,19 +6,16 @@ Korzystanie z komed AT
 - [x] Wysyłanie/odbiór uart
 - [x] Komunikacja z ESP8266
 - [x] Wysyłanie do thingspeak
-- [ ] odbieranie z thingspeak
+- [ ] Odbieranie z thingspeak
 - [ ] thingspeak talkback
 
-## Dostępne
-- [x] Termometr na ADC
+## Czujniki
 - [x] DT11
-- [ ] Ciśnieniomierz
-- [ ] Prędkość wiatru
-- [ ] Panel solarny ----> NOPE ----> zasilacze 5V
+- [x] Fotorezystor
 
 ## Przyszłe
 - [ ] moduł włączający          (thingspeak talkback)
 - [ ] moduł do sterowania       (thingspeak talkback)
 - [ ] dodanie przyciskow        (thingspeak)
 - [ ] efektowane wykresy        (thingspeak)
-- [ ] projekty płytek
+- [x] projekty płytek

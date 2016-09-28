@@ -9,15 +9,6 @@
  * @addtogroup thingsepak_def
  * @{
  */
-
-//#define NULL '\0';
-
-/*
-#define DATA_FIELD_2
-#define DATA_FIELD_3
-#define DATA_FIELD_4
-*/
-
 data_field_typedef *p_data1=NULL;
 
 #ifdef DATA_FIELD_2
@@ -224,3 +215,4 @@ void thingspeak_init_struct(void (*uart_send_function)(char *),
     #endif
 
 }
+//↓↓↓↓↓↓thingspeak talkback part //receiver
