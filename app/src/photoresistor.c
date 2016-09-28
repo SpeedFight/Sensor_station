@@ -14,11 +14,15 @@ volatile uint8_t no_brightness;
 
 #define ADC_PORT    7u  //adc7
 
-//lowest voltage on voltage divider (photoresistor) ~1.2V
-//((1.2*1023)/3.3)=372
-//#define ADC_LOW  372u
+//lowest voltage on voltage divider (photoresistor) ~0.2V
+//((0.8*1023)/3.3)=62
+//2 zakresy
+//3.3->1.2V 1023 -> 372
+//1.2->0    371 -> 1
+#define ADC_LOW1  372u
+#define ADC_LOW2  62u
 
-#define ADC_MAX 1023u
+#define ADC_MAX (1023u)
 
 static void init()
 {
@@ -43,7 +47,7 @@ static void reset_average()
 
 static char *get_string_brightness()
 {
-    static char str_brightness[4];
+    static char str_brightness[5];
     itoa (no_brightness, str_brightness, 10);
     return  str_brightness;
 }
@@ -53,17 +57,42 @@ ISR(ADC_vect)
     uint16_t adc_tmp=0;
 
     adc_tmp = ADCL;
-    adc_tmp |=ADCH<<8;
+    adc_tmp |=ADCH<<8u;
 
     if(!(adc_tmp))
-        adc_tmp=1; //no 0 allowed
+        adc_tmp++;
 
+    if(!no_brightness)
+    {
+        if(adc_tmp>371u)
+        {
+            no_brightness = ((uint16_t)no_brightness*100u/(ADC_MAX- ADC_LOW1))/2u;
+        }
+        else
+        {
+            no_brightness = ((uint16_t)no_brightness*100u/ADC_MAX)/2u;
+        }
+    }
+
+
+    if(adc_tmp>371u)
+    {
+        no_brightness = ((uint16_t)no_brightness +(((uint16_t)adc_tmp - ADC_LOW1)*100u/(ADC_MAX-ADC_LOW1)))/2u;
+    }
+    else
+    {
+        no_brightness = ((uint16_t)no_brightness +(((uint16_t)adc_tmp)*100u/ADC_MAX))/2u;
+    }
+
+
+/*
     //average measures
     if(!no_brightness)
-        no_brightness = (adc_tmp*100/ADC_MAX);
+        no_brightness = adc_tmp;//((adc_tmp - ADC_LOW)*100u/ADC_MAX);
     else
-        no_brightness = ((uint16_t)no_brightness +(adc_tmp*100/ADC_MAX))/2;
-
+        //no_brightness = ((uint16_t)no_brightness +(((uint16_t)adc_tmp - ADC_LOW)*100u/ADC_MAX))/2u;
+        no_brightness = ((uint16_t)no_brightness +((uint16_t)adc_tmp/2u));
+*/
 }
 
 void photoresistor_init_struct(photoresistor_typedef *photoresistor)
