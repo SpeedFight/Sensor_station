@@ -6,16 +6,13 @@ Korzystanie z komed AT
 - [x] Wysyłanie/odbiór uart
 - [x] Komunikacja z ESP8266
 - [x] Wysyłanie do thingspeak
-- [ ] Odbieranie z thingspeak
-- [ ] thingspeak talkback
+- [x] Odbieranie z thingspeak
+- [x] thingspeak talkback
 
 ## Czujniki
 - [x] DT11
 - [x] Fotorezystor
 
 ## Przyszłe
-- [ ] moduł włączający          (thingspeak talkback)
-- [ ] moduł do sterowania       (thingspeak talkback)
-- [ ] dodanie przyciskow        (thingspeak)
-- [ ] efektowane wykresy        (thingspeak)
+- [x] efektowane wykresy        (thingspeak)
 - [x] projekty płytek
